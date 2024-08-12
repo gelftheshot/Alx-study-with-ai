@@ -1,6 +1,7 @@
 'use client';
 import { Box, Button, Container, Typography } from '@mui/material';
 import Link from 'next/link';
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Hero() {
   return (
@@ -19,16 +20,19 @@ export default function Hero() {
           Transform your text into interactive flashcards with our AI-powered tool. Learn faster and more efficiently.
         </Typography>
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-          <Link href="/signup" passHref>
-            <Button variant="contained" color="primary" component="a">
+          <SignedIn>
+            <Button variant="contained" color="primary" component={Link} href="/create">
+              Create Flashcards
+            </Button>
+          </SignedIn>
+          <SignedOut>
+            <Button variant="contained" color="primary" component={Link} href="/sign-up">
               Sign Up
             </Button>
-          </Link>
-          <Link href="/login" passHref>
-            <Button variant="outlined" color="primary" component="a">
+            <Button variant="outlined" color="primary" component={Link} href="/sign-in">
               Log In
             </Button>
-          </Link>
+          </SignedOut>
         </Box>
       </Container>
     </Box>
