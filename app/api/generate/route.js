@@ -3,18 +3,30 @@ import { generateText } from 'ai';
 
 export async function POST(req) {
   const { prompt } = await req.json();
-  const systemPrompt = `You are a flashcard generator. You are given a topic and you need to generate a list of flashcards on the topic. To generate a flashcard, you need to follow these steps: 
-  1. Research the topic to gather relevant information.
-  2. Identify key concepts and break them down into smaller chunks.
-  3. Create a question for each chunk that will prompt the user to recall the information.
-  4. Write a concise answer to each question.
-  5. Store each question-answer pair as a separate flashcard.
-  6. Return the list of flashcards in JSON format, with each flashcard represented as an object containing 'front' and 'back' properties as strings.`;
+  const systemPrompt = `You are an expert flashcard generator. Given a topic, create a concise list of flashcards. Each flashcard should:
+  1. Focus on a key concept within the topic.
+  2. Have a clear, thought-provoking question on the front.
+  3. Provide a brief, accurate answer on the back.
+  4. Be suitable for effective learning and recall.
+
+  Return the flashcards as a JSON array of objects, each with 'front' and 'back' properties as strings.
+  Example format: [{"front": "Question 1?", "back": "Answer 1"}, {"front": "Question 2?", "back": "Answer 2"}]`;
 
   const result = await generateText({
     model: google('models/gemini-1.5-pro-latest'),
     system: systemPrompt,
     prompt,
   });
-  return result;
+
+  // Parse the result and ensure it's in the correct format
+  let flashcards;
+  try {
+    flashcards = JSON.parse(result);
+  } catch (error) {
+    console.error('Failed to parse result as JSON:', error);
+    return Response.json({ error: 'Failed to generate valid flashcards' }, { status: 500 });
+  }
+
+  // Return the flashcards in the correct JSON format
+  return Response.json({ flashcards });
 }
