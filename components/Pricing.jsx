@@ -1,9 +1,13 @@
+'use client';
+import { useState } from 'react';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Container, Grid, Typography } from '@mui/material';
+import getStripe from '../utils/get-stripejs';
 
 const tiers = [
   {
     title: 'Free',
     price: '0',
+    priceId: 'price_free', // You might not need this for the free tier
     description: ['10 flashcards per day', 'Basic AI conversion', 'Web access'],
     buttonText: 'Sign up for free',
     buttonVariant: 'outlined',
@@ -12,6 +16,7 @@ const tiers = [
     title: 'Pro',
     subheader: 'Most popular',
     price: '15',
+    priceId: 'price_actual_id_from_stripe', // Replace with your actual Stripe Price ID
     description: [
       'Unlimited flashcards',
       'Advanced AI conversion',
@@ -24,6 +29,7 @@ const tiers = [
   {
     title: 'Enterprise',
     price: '30',
+    priceId: 'price_another_actual_id_from_stripe', // Replace with your actual Stripe Price ID
     description: [
       'Unlimited flashcards',
       'Custom AI models',
@@ -36,6 +42,41 @@ const tiers = [
 ];
 
 export default function Pricing() {
+  const [loading, setLoading] = useState({});
+
+  const handleSubscribe = async (priceId) => {
+    setLoading((prev) => ({ ...prev, [priceId]: true }));
+    try {
+      const response = await fetch('/api/checkout_sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const { sessionId } = await response.json();
+      const stripe = await getStripe();
+      
+      if (!stripe) {
+        throw new Error('Failed to load Stripe');
+      }
+      
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setLoading((prev) => ({ ...prev, [priceId]: false }));
+    }
+  };
+
   return (
     <Box sx={{ py: 8, bgcolor: 'background.paper' }}>
       <Container maxWidth="lg">
@@ -70,8 +111,13 @@ export default function Pricing() {
                   </ul>
                 </CardContent>
                 <CardActions>
-                  <Button fullWidth variant={tier.buttonVariant}>
-                    {tier.buttonText}
+                  <Button
+                    fullWidth
+                    variant={tier.buttonVariant}
+                    onClick={() => handleSubscribe(tier.priceId)}
+                    disabled={loading[tier.priceId]}
+                  >
+                    {loading[tier.priceId] ? 'Loading...' : tier.buttonText}
                   </Button>
                 </CardActions>
               </Card>
