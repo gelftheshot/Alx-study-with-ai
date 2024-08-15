@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@stripe/stripe-js": "^4.2.0",
+    "ai": "^3.3.7",
     "firebase": "^10.12.5",
     "next": "14.2.5",
     "react": "^18",
