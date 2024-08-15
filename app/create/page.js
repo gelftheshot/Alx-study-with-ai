@@ -1,12 +1,37 @@
 'use client';
 import { useState } from 'react';
 import { Box, TextField, Button, Typography, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { useUser } from '@clerk/nextjs';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../utils/firebase';
 
 const Createcard = () => {
   const [topic, setTopic] = useState('');
   const [cardCount, setCardCount] = useState(10);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const { user } = useUser();
+
+  const saveFlashcards = async () => {
+    if (!user || flashcards.length === 0) return;
+
+    setSaveLoading(true);
+    try {
+      const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
+      await addDoc(flashcardsRef, {
+        topic,
+        cards: flashcards,
+        createdAt: new Date()
+      });
+      alert('Flashcards saved successfully!');
+    } catch (error) {
+      console.error('Error saving flashcards:', error);
+      alert('Failed to save flashcards. Please try again.');
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,24 +104,36 @@ const Createcard = () => {
       </Box>
 
       {flashcards.length > 0 && (
-        <TableContainer component={Paper} sx={{ mt: 4 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Question</TableCell>
-                <TableCell>Answer</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {flashcards.map((card, index) => (
-                <TableRow key={index}>
-                  <TableCell>{card.front}</TableCell>
-                  <TableCell>{card.back}</TableCell>
+        <>
+          <TableContainer component={Paper} sx={{ mt: 4 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Question</TableCell>
+                  <TableCell>Answer</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {flashcards.map((card, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{card.front}</TableCell>
+                    <TableCell>{card.back}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={saveFlashcards}
+              disabled={saveLoading}
+            >
+              {saveLoading ? 'Saving...' : 'Save Flashcards'}
+            </Button>
+          </Box>
+        </>
       )}
     </Container>
   );
