@@ -18,26 +18,22 @@ export async function POST(req) {
     prompt,
   });
 
-  // Parse the result and ensure it's in the correct format
   let flashcards;
   try {
-    // First, try to parse the result as JSON
-    flashcards = JSON.parse(result);
-  } catch (error) {
-    console.error('Failed to parse result as JSON:', error);
-    // If parsing fails, attempt to extract JSON from the text
-    const jsonMatch = result.match(/\[.*\]/s);
-    if (jsonMatch) {
-      try {
-        flashcards = JSON.parse(jsonMatch[0]);
-      } catch (innerError) {
-        console.error('Failed to extract and parse JSON from result:', innerError);
-        return Response.json({ error: 'Failed to generate valid flashcards' }, { status: 500 });
-      }
+    // Check if result is a DefaultGenerateTextResult object
+    if (result && typeof result === 'object' && 'text' in result) {
+      // Parse the text property which contains the JSON string
+      flashcards = JSON.parse(result.text);
+    } else if (typeof result === 'string') {
+      // If it's a string, try to parse it as JSON
+      flashcards = JSON.parse(result);
     } else {
-      console.error('No JSON-like structure found in the result');
-      return Response.json({ error: 'Failed to generate valid flashcards' }, { status: 500 });
+      throw new Error('Unexpected result format');
     }
+  } catch (error) {
+    console.error('Failed to parse result:', error);
+    console.log('Raw result:', result);
+    return Response.json({ error: 'Failed to generate valid flashcards' }, { status: 500 });
   }
 
   // Validate the structure of the flashcards
