@@ -5,12 +5,13 @@ import { useState } from "react";
 import InfoIcon from '@mui/icons-material/Info';
 
 const flashcardStyle = {
-  width: "350px",
+  width: "100%",
   height: "220px",
   perspective: "1500px",
   cursor: "pointer",
   position: "relative",
   fontFamily: "'Roboto Slab', serif",
+  margin: "8px",
 };
 
 const cardStyle = {
@@ -34,7 +35,7 @@ const cardFaceStyle = {
   boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
 };
 
-const Flashcard = (question, answer) => {
+const Flashcard = ({ question, answer }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -96,8 +97,9 @@ const Flashcard = (question, answer) => {
             variants={contentVariants} 
             initial="hidden" 
             animate={isFlipped ? "hidden" : "visible"}
+            style={{ padding: '16px', textAlign: 'center' }}
           >
-            <Typography variant="h5" sx={{ fontFamily: "'Playfair Display', serif", color: "#333" }}>{question}</Typography>
+            <Typography variant="h6" sx={{ fontFamily: "'Playfair Display', serif", color: "#333" }}>{question}</Typography>
           </motion.div>
         </motion.div>
         <motion.div
@@ -111,8 +113,9 @@ const Flashcard = (question, answer) => {
             variants={contentVariants} 
             initial="hidden" 
             animate={isFlipped ? "visible" : "hidden"}
+            style={{ padding: '16px', textAlign: 'center' }}
           >
-            <Typography variant="h5" color="white" sx={{ fontFamily: "'Montserrat', sans-serif" }}>{answer}</Typography>
+            <Typography variant="body1" color="white" sx={{ fontFamily: "'Montserrat', sans-serif" }}>{answer}</Typography>
           </motion.div>
         </motion.div>
       </motion.div>

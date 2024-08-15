@@ -9,16 +9,10 @@ export default function Header() {
       <Toolbar sx={{ flexWrap: 'wrap' }}>
         <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
           <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
-            FlashCard Pro
+            FlashCard AI
           </Link>
         </Typography>
         <nav>
-          <Link href="/features" passHref>
-            <Button sx={{ my: 1, mx: 1.5 }}>Features</Button>
-          </Link>
-          <Link href="/pricing" passHref>
-            <Button sx={{ my: 1, mx: 1.5 }}>Pricing</Button>
-          </Link>
           <Link href="/my-flashcards" passHref>
             <Button sx={{ my: 1, mx: 1.5 }}>My Flashcards</Button>
           </Link>

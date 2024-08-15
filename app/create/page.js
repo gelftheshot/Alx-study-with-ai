@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Box, TextField, Button, Typography, Container, Grid } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
+import Flashcard from '../../components/flashcard';
 
 const Createcard = () => {
   const [topic, setTopic] = useState('');
@@ -60,13 +61,13 @@ const Createcard = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Create Flashcards
         </Typography>
         <Grid container spacing={2} alignItems="flex-start">
-          <Grid item xs={9}>
+          <Grid item xs={12} md={8}>
             <TextField
               fullWidth
               label="Topic"
@@ -75,13 +76,13 @@ const Createcard = () => {
               margin="normal"
               required
               multiline
-              rows={4}
+              rows={6}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
-              label="Cards"
+              label="Number of Cards"
               type="number"
               value={cardCount}
               onChange={(e) => setCardCount(Math.min(30, Math.max(1, parseInt(e.target.value))))}
@@ -89,41 +90,41 @@ const Createcard = () => {
               margin="normal"
               required
             />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2 }}
+              disabled={loading}
+              onClick={handleSubmit}
+            >
+              {loading ? 'Generating...' : 'Generate Flashcards'}
+            </Button>
           </Grid>
         </Grid>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-          disabled={loading}
-        >
-          {loading ? 'Generating...' : 'Generate Flashcards'}
-        </Button>
       </Box>
 
       {flashcards.length > 0 && (
         <>
-          <TableContainer component={Paper} sx={{ mt: 4 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Question</TableCell>
-                  <TableCell>Answer</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {flashcards.map((card, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{card.front}</TableCell>
-                    <TableCell>{card.back}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ 
+            mt: 4, 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: 3, 
+            justifyContent: 'center',
+            alignItems: 'stretch',
+          }}>
+            {flashcards.map((card, index) => (
+              <Box key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Flashcard 
+                  question={card.front} 
+                  answer={card.back} 
+                />
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
             <Button
               variant="contained"
               color="secondary"
