@@ -1,14 +1,16 @@
 'use client';
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Grid } from '@mui/material';
+import { Box, TextField, Button, Typography, Container, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 const Createcard = () => {
   const [topic, setTopic] = useState('');
   const [cardCount, setCardCount] = useState(10);
+  const [flashcards, setFlashcards] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Send topic and cardCount to backend AI for processing
+    setLoading(true);
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -23,16 +25,17 @@ const Createcard = () => {
       }
 
       const data = await response.json();
-      console.log('Generated flashcards:', data.flashcards);
-      // TODO: Handle the generated flashcards (e.g., save to database, display to user)
+      setFlashcards(data.flashcards);
     } catch (error) {
       console.error('Error generating flashcards:', error);
       // TODO: Show error message to user
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Create Flashcards
@@ -69,10 +72,32 @@ const Createcard = () => {
           color="primary"
           fullWidth
           sx={{ mt: 2 }}
+          disabled={loading}
         >
-          Generate Flashcards
+          {loading ? 'Generating...' : 'Generate Flashcards'}
         </Button>
       </Box>
+
+      {flashcards.length > 0 && (
+        <TableContainer component={Paper} sx={{ mt: 4 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Question</TableCell>
+                <TableCell>Answer</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {flashcards.map((card, index) => (
+                <TableRow key={index}>
+                  <TableCell>{card.front}</TableCell>
+                  <TableCell>{card.back}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Container>
   );
 };
