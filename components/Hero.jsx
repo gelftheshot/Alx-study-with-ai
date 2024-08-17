@@ -5,11 +5,11 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 import AutoFlippingFlashcard from './AutoFlippingFlashcard';
 
 const flashcardData = [
-  { question: "What's the capital of France?", answer: "Paris" },
-  { question: "Who wrote 'Romeo and Juliet'?", answer: "William Shakespeare" },
-  { question: "What's the largest planet in our solar system?", answer: "Jupiter" },
-  { question: "What's the chemical symbol for gold?", answer: "Au" },
-  { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
+  { question: "What's the only food that doesn't spoil?", answer: "Honey" },
+  { question: "Which planet has the most moons?", answer: "Saturn (82 moons)" },
+  { question: "What's the loudest animal on Earth?", answer: "The sperm whale" },
+  { question: "How many hearts does an octopus have?", answer: "Three" },
+  { question: "What's the smallest bone in the human body?", answer: "The stapes (in the ear)" },
 ];
 
 export default function Hero() {
@@ -53,14 +53,21 @@ export default function Hero() {
           </Grid>
           <Grid item xs={12} md={6}>
             <Box sx={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <AutoFlippingFlashcard
-                question={flashcardData[0].question}
-                answer={flashcardData[0].answer}
-              />
+              <AutoFlippingFlashcard flashcardData={flashcardData} />
             </Box>
           </Grid>
         </Grid>
       </Container>
+      <Box component="footer" sx={{ mt: 8, py: 3, bgcolor: 'background.paper' }}>
+        <Container maxWidth="lg">
+          <Typography variant="body2" color="text.secondary" align="center">
+            © {new Date().getFullYear()} FlashCard AI. All rights reserved.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
+            Made with ❤️ for learners everywhere
+          </Typography>
+        </Container>
+      </Box>
     </Box>
   );
 }

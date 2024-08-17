@@ -4,17 +4,19 @@ export default function Footer() {
   return (
     <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6 }}>
       <Container maxWidth="lg">
-        <Typography variant="body2" color="text.secondary" align="center">
-          © {new Date().getFullYear()} FlashCard AI. All rights reserved.
+        <Typography variant="h6" align="center" gutterBottom>
+          FlashCard AI
         </Typography>
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
-          <Link color="inherit" href="/privacy">
-            Privacy Policy
-          </Link>
-          {' | '}
-          <Link color="inherit" href="/terms">
-            Terms of Service
-          </Link>
+        <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
+          Revolutionize your learning with AI-powered flashcards
+        </Typography>
+        <Typography variant="body2" color="text.secondary" align="center">
+          {'Copyright © '}
+          <Link color="inherit" href="https://yourwebsite.com/">
+            FlashCard AI
+          </Link>{' '}
+          {new Date().getFullYear()}
+          {'.'}
         </Typography>
       </Container>
     </Box>
