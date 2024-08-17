@@ -2,8 +2,7 @@
 import { Box, Button, Container, Typography, Grid } from '@mui/material';
 import Link from 'next/link';
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { useState, useEffect } from 'react';
-import Flashcard from './flashcard';
+import AutoFlippingFlashcard from './AutoFlippingFlashcard';
 
 const flashcardData = [
   { question: "What's the capital of France?", answer: "Paris" },
@@ -14,16 +13,6 @@ const flashcardData = [
 ];
 
 export default function Hero() {
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcardData.length);
-    }, 5000); // Flip every 5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <Box sx={{ bgcolor: 'background.paper', pt: 8, pb: 6 }}>
       <Container maxWidth="lg">
@@ -64,9 +53,9 @@ export default function Hero() {
           </Grid>
           <Grid item xs={12} md={6}>
             <Box sx={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Flashcard
-                question={flashcardData[currentCardIndex].question}
-                answer={flashcardData[currentCardIndex].answer}
+              <AutoFlippingFlashcard
+                question={flashcardData[0].question}
+                answer={flashcardData[0].answer}
               />
             </Box>
           </Grid>

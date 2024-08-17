@@ -35,12 +35,13 @@ const cardFaceStyle = {
   boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
 };
 
-const Flashcard = ({ question, answer }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+const Flashcard = ({ question, answer, isFlipped, setIsFlipped }) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = () => {
-    setIsFlipped(!isFlipped);
+    if (setIsFlipped) {
+      setIsFlipped(!isFlipped);
+    }
   };
 
   const handleInfoClick = (event) => {
