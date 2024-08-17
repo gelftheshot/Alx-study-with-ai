@@ -2,9 +2,28 @@
 import { Box, Button, Container, Typography, Grid } from '@mui/material';
 import Link from 'next/link';
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import Flashcard from './flashcard';
+
+const flashcardData = [
+  { question: "What's the capital of France?", answer: "Paris" },
+  { question: "Who wrote 'Romeo and Juliet'?", answer: "William Shakespeare" },
+  { question: "What's the largest planet in our solar system?", answer: "Jupiter" },
+  { question: "What's the chemical symbol for gold?", answer: "Au" },
+  { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
+];
 
 export default function Hero() {
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcardData.length);
+    }, 5000); // Flip every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Box sx={{ bgcolor: 'background.paper', pt: 8, pb: 6 }}>
       <Container maxWidth="lg">
@@ -44,13 +63,12 @@ export default function Hero() {
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Image
-              src="/flashcard-illustration.png"
-              alt="Flashcard Illustration"
-              width={500}
-              height={400}
-              layout="responsive"
-            />
+            <Box sx={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Flashcard
+                question={flashcardData[currentCardIndex].question}
+                answer={flashcardData[currentCardIndex].answer}
+              />
+            </Box>
           </Grid>
         </Grid>
       </Container>
