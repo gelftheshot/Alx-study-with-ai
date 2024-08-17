@@ -2,7 +2,16 @@ import { Box, Container, Typography, Link } from '@mui/material';
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6, mt: 8 }}>
+    <Box 
+      component="footer" 
+      sx={{ 
+        bgcolor: 'background.paper', 
+        py: 6, 
+        mt: 8,
+        borderTop: '1px solid',
+        borderColor: 'divider'
+      }}
+    >
       <Container maxWidth="lg">
         <Typography variant="h6" align="center" gutterBottom>
           FlashCard AI
