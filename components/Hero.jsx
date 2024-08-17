@@ -19,17 +19,26 @@ export default function Hero() {
               FlashCard AI
             </Typography>
             <Typography variant="h5" color="text.secondary" paragraph>
-              Transform your learning with AI-powered flashcards. Create, study, and master any subject effortlessly.
+              Revolutionize your learning with AI-powered flashcards. Create, study, and master any subject effortlessly using our advanced natural language processing technology.
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Our platform uses state-of-the-art AI to generate high-quality flashcards from any text, saving you time and enhancing your study experience. Perfect for students, professionals, and lifelong learners.
             </Typography>
             <Box sx={{ mt: 4 }}>
               <SignedIn>
-                <Button variant="contained" color="primary" component={Link} href="/create" size="large">
+                <Button variant="contained" color="primary" component={Link} href="/create" size="large" sx={{ mr: 2 }}>
                   Create Flashcards
+                </Button>
+                <Button variant="outlined" color="primary" component={Link} href="/my-flashcards" size="large">
+                  My Flashcards
                 </Button>
               </SignedIn>
               <SignedOut>
-                <Button variant="contained" color="primary" component={Link} href="/sign-up" size="large">
+                <Button variant="contained" color="primary" component={Link} href="/sign-up" size="large" sx={{ mr: 2 }}>
                   Get Started
+                </Button>
+                <Button variant="outlined" color="primary" component={Link} href="/sign-in" size="large">
+                  Log In
                 </Button>
               </SignedOut>
             </Box>

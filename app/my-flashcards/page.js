@@ -3,7 +3,9 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Container, Typography, Grid, Box, Button } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Flashcard from '../../components/flashcard';
 
 const MyFlashcards = () => {
   const { user, isSignedIn, isLoaded } = useUser();
@@ -29,69 +31,67 @@ const MyFlashcards = () => {
   }
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="lg">
       <Typography variant="h4" component="h1" gutterBottom sx={{ mt: 4 }}>
         My Flashcards
       </Typography>
       {selectedSet ? (
         <Box>
-          <Typography variant="h5" gutterBottom>
-            {selectedSet.topic}
-          </Typography>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Front</TableCell>
-                  <TableCell>Back</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedSet.cards.map((card, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{card.front}</TableCell>
-                    <TableCell>{card.back}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box sx={{ mt: 2 }}>
-            <Typography
-              variant="body2"
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => setSelectedSet(null)}
+              sx={{ mr: 2 }}
+            >
+              Back to list
+            </Button>
+            <Typography variant="h5">
+              {selectedSet.topic}
+            </Typography>
+          </Box>
+          <Grid container spacing={3}>
+            {selectedSet.cards.map((card, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4}>
+                <Flashcard question={card.front} answer={card.back} />
+              </Grid>
+            ))}
+          </Grid>
+          <Box sx={{ mt: 4 }}>
+            <Button
+              variant="contained"
               color="primary"
-              sx={{ cursor: 'pointer' }}
               onClick={() => setSelectedSet(null)}
             >
               Back to list
-            </Typography>
+            </Button>
           </Box>
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Topic</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Cards</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {flashcardSets.map((set) => (
-                <TableRow
-                  key={set.id}
-                  sx={{ '&:hover': { backgroundColor: 'action.hover', cursor: 'pointer' } }}
-                  onClick={() => setSelectedSet(set)}
-                >
-                  <TableCell>{set.topic}</TableCell>
-                  <TableCell>{new Date(set.createdAt.seconds * 1000).toLocaleString()}</TableCell>
-                  <TableCell>{set.cards.length}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Grid container spacing={3}>
+          {flashcardSets.map((set) => (
+            <Grid item key={set.id} xs={12} sm={6} md={4}>
+              <Box
+                sx={{
+                  p: 3,
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  borderRadius: 2,
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: 'action.hover' },
+                }}
+                onClick={() => setSelectedSet(set)}
+              >
+                <Typography variant="h6" gutterBottom>{set.topic}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Created: {new Date(set.createdAt.seconds * 1000).toLocaleString()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Cards: {set.cards.length}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
       )}
     </Container>
   );

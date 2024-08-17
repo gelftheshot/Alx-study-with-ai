@@ -1,16 +1,16 @@
-import Header from '../components/Header';
+'use client';
 import Hero from '../components/Hero';
 import Features from '../components/Features';
-import Footer from '../components/Footer';
+import HowItWorks from '../components/HowItWorks';
+import CallToAction from '../components/CallToAction';
 
 export default function Home() {
   return (
-    <>
-      <main>
-        <Hero />
-        <Features />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <CallToAction />
+    </main>
   );
 }
