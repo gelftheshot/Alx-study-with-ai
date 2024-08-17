@@ -1,16 +1,14 @@
 'use client';
-import Hero from '../components/Hero';
-import Features from '../components/Features';
-import HowItWorks from '../components/HowItWorks';
-import CallToAction from '../components/CallToAction';
+import { useUser } from '@clerk/nextjs';
+import HomeSignedOut from '../components/HomeSignedOut';
+import HomeSignedIn from '../components/HomeSignedIn';
 
 export default function Home() {
-  return (
-    <main>
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <CallToAction />
-    </main>
-  );
+  const { isSignedIn, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  return isSignedIn ? <HomeSignedIn /> : <HomeSignedOut />;
 }

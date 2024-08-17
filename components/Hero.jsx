@@ -1,8 +1,13 @@
 'use client';
-import { Box, Button, Container, Typography, Grid } from '@mui/material';
+import { Box, Button, Container, Typography, Grid, Image } from '@mui/material';
 import Link from 'next/link';
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import AutoFlippingFlashcard from './AutoFlippingFlashcard';
+import Features from './Features';
+import HowItWorks from './HowItWorks';
+import Testimonials from './Testimonials';
+import CallToAction from './CallToAction';
+import Dashboard from './Dashboard';
 
 const flashcardData = [
   { question: "What's the only food that doesn't spoil?", answer: "Honey" },
@@ -13,61 +18,51 @@ const flashcardData = [
 ];
 
 export default function Hero() {
+  const { isSignedIn } = useUser();
+
   return (
-    <Box sx={{ bgcolor: 'background.paper', pt: 8, pb: 6 }}>
+    <Box sx={{ bgcolor: 'background.paper', pt: 12, pb: 6 }}>
       <Container maxWidth="lg">
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Typography
-              component="h1"
-              variant="h2"
-              color="text.primary"
-              gutterBottom
-            >
-              FlashCard AI
-            </Typography>
-            <Typography variant="h5" color="text.secondary" paragraph>
-              Revolutionize your learning with AI-powered flashcards. Create, study, and master any subject effortlessly using our advanced natural language processing technology.
-            </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
-              Our platform uses state-of-the-art AI to generate high-quality flashcards from any text, saving you time and enhancing your study experience. Perfect for students, professionals, and lifelong learners.
-            </Typography>
-            <Box sx={{ mt: 4 }}>
-              <SignedIn>
-                <Button variant="contained" color="primary" component={Link} href="/create" size="large" sx={{ mr: 2 }}>
-                  Create Flashcards
-                </Button>
-                <Button variant="outlined" color="primary" component={Link} href="/my-flashcards" size="large">
-                  My Flashcards
-                </Button>
-              </SignedIn>
-              <SignedOut>
-                <Button variant="contained" color="primary" component={Link} href="/sign-up" size="large" sx={{ mr: 2 }}>
-                  Get Started
-                </Button>
-                <Button variant="outlined" color="primary" component={Link} href="/sign-in" size="large">
-                  Log In
-                </Button>
-              </SignedOut>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <AutoFlippingFlashcard flashcardData={flashcardData} />
-            </Box>
-          </Grid>
-        </Grid>
+        {isSignedIn ? (
+          <Dashboard />
+        ) : (
+          <>
+            <Grid container spacing={8} alignItems="center">
+              <Grid item xs={12} md={6}>
+                <Typography
+                  component="h1"
+                  variant="h2"
+                  color="text.primary"
+                  gutterBottom
+                  sx={{ fontWeight: 'bold', mb: 4 }}
+                >
+                  FlashCard AI
+                </Typography>
+                <Typography variant="h5" color="text.secondary" paragraph sx={{ mb: 4 }}>
+                  Revolutionize your learning with AI-powered flashcards. Create, study, and master any subject effortlessly.
+                </Typography>
+                <Box sx={{ mt: 6 }}>
+                  <Button variant="contained" color="primary" component={Link} href="/sign-up" size="large" sx={{ mr: 2, px: 4, py: 1.5 }}>
+                    Get Started
+                  </Button>
+                  <Button variant="outlined" color="primary" component={Link} href="/sign-in" size="large" sx={{ px: 4, py: 1.5 }}>
+                    Log In
+                  </Button>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ width: '100%', height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <AutoFlippingFlashcard flashcardData={flashcardData} />
+                </Box>
+              </Grid>
+            </Grid>
+            <Features />
+            <HowItWorks />
+            <Testimonials />
+            <CallToAction />
+          </>
+        )}
       </Container>
-      <Box component="footer" sx={{ mt: 8, py: 3, bgcolor: 'background.paper' }}>
-        <Container maxWidth="lg">
-          <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} FlashCard AI. All rights reserved.
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
-            Made with ❤️ for learners everywhere
-          </Typography>
-        </Container>
-      </Box>
     </Box>
   );
 }
