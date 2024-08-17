@@ -32,7 +32,7 @@ export default function CallToAction() {
                 component={Link}
                 href="/sign-in"
                 size="large"
-                sx={{ px: 4, py: 1.5, fontSize: '1.1rem', fontWeight: 'bold', borderColor: 'primary.contrastText', '&:hover': { borderColor: 'primary.contrastText', bgcolor: 'rgba(255, 255, 255, 0.1)' } }}
+                sx={{ px: 4, py: 1.5, fontSize: '1.1rem', fontWeight: 'bold', borderColor: 'inherit', '&:hover': { borderColor: 'inherit', bgcolor: 'rgba(255, 255, 255, 0.1)' } }}
               >
                 Log In
               </Button>

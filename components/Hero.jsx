@@ -42,7 +42,7 @@ export default function Hero() {
                   Revolutionize your learning with AI-powered flashcards. Create, study, and master any subject effortlessly.
                 </Typography>
                 <Box sx={{ mt: 6 }}>
-                  <Button variant="contained" color="primary" component={Link} href="/sign-up" size="large" sx={{ mr: 2, px: 4, py: 1.5 }}>
+                  <Button variant="contained" color="secondary" component={Link} href="/sign-up" size="large" sx={{ mr: 2, px: 4, py: 1.5 }}>
                     Get Started
                   </Button>
                   <Button variant="outlined" color="primary" component={Link} href="/sign-in" size="large" sx={{ px: 4, py: 1.5 }}>

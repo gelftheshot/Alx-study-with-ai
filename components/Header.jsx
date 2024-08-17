@@ -5,16 +5,16 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Header() {
   return (
-    <AppBar position="static" color="default" elevation={0}>
+    <AppBar position="static" color="primary" elevation={0}>
       <Toolbar sx={{ flexWrap: 'wrap' }}>
-        <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" color="white" noWrap sx={{ flexGrow: 1 }}>
           <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
             FlashCard AI
           </Link>
         </Typography>
         <nav>
           <Link href="/my-flashcards" passHref>
-            <Button sx={{ my: 1, mx: 1.5 }}>My Flashcards</Button>
+            <Button sx={{ my: 1, mx: 1.5, color: 'white' }}>My Flashcards</Button>
           </Link>
         </nav>
         <SignedIn>
@@ -22,10 +22,10 @@ export default function Header() {
         </SignedIn>
         <SignedOut>
           <Link href="/sign-in" passHref>
-            <Button sx={{ my: 1, mx: 1.5 }}>Login</Button>
+            <Button sx={{ my: 1, mx: 1.5, color: 'white' }}>Login</Button>
           </Link>
           <Link href="/sign-up" passHref>
-            <Button variant="outlined" sx={{ my: 1, mx: 1.5 }}>Sign Up</Button>
+            <Button variant="outlined" sx={{ my: 1, mx: 1.5, color: 'white', borderColor: 'white' }}>Sign Up</Button>
           </Link>
         </SignedOut>
       </Toolbar>

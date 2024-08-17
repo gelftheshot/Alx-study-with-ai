@@ -8,19 +8,19 @@ const steps = [
     title: 'Create',
     description: 'Input your study material or choose a topic',
     icon: CreateIcon,
-    color: '#4CAF50',
+    color: '#3f51b5', // primary.main
   },
   {
     title: 'Learn',
     description: 'Review AI-generated flashcards',
     icon: SchoolIcon,
-    color: '#2196F3',
+    color: '#f50057', // secondary.main
   },
   {
     title: 'Improve',
     description: 'Track progress and master your subject',
     icon: TrendingUpIcon,
-    color: '#FF9800',
+    color: '#757de8', // primary.light
   },
 ];
 

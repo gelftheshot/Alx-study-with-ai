@@ -8,19 +8,19 @@ const features = [
     title: 'AI-Powered Creation',
     description: 'Instantly generate well-structured flashcards from any text.',
     icon: <SchoolIcon sx={{ fontSize: 40 }} />,
-    color: '#4CAF50',
+    color: '#3f51b5', // primary.main
   },
   {
     title: 'Fast and Efficient',
     description: 'Create hundreds of flashcards in seconds, saving you time and effort.',
     icon: <SpeedIcon sx={{ fontSize: 40 }} />,
-    color: '#2196F3',
+    color: '#f50057', // secondary.main
   },
   {
     title: 'Study Anywhere',
     description: 'Access your flashcards on any device, anytime, anywhere.',
     icon: <DevicesIcon sx={{ fontSize: 40 }} />,
-    color: '#FF9800',
+    color: '#757de8', // primary.light
   },
 ];
 
