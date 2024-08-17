@@ -9,8 +9,8 @@ export async function POST(req) {
   3. Provide a detailed, accurate answer on the back, including explanations and examples where appropriate.
   4. Be suitable for effective learning and recall.
 
-  Return the flashcards as a JSON array of objects, each with 'front' and 'back' properties as strings.
-  Example format: [{"front": "Question 1?", "back": "Detailed answer 1 with explanation and example"}, {"front": "Question 2?", "back": "Detailed answer 2 with explanation and example"}]`;
+  Return the flashcards as a JSON array of objects, each with 'front', 'back', and 'detail' properties as strings.
+  Example format: [{"front": "Question 1?", "back": "Answer 1", "detail": "Detailed explanation 1"}, {"front": "Question 2?", "back": "Answer 2", "detail": "Detailed explanation 2"}]`;
 
   const result = await generateText({
     model: google('models/gemini-1.5-pro-latest'),
@@ -37,7 +37,7 @@ export async function POST(req) {
   }
 
   // Validate the structure of the flashcards
-  if (!Array.isArray(flashcards) || !flashcards.every(card => card.front && card.back)) {
+  if (!Array.isArray(flashcards) || !flashcards.every(card => card.front && card.back && card.detail)) {
     console.error('Invalid flashcard structure:', flashcards);
     return Response.json({ error: 'Generated flashcards have an invalid structure' }, { status: 500 });
   }

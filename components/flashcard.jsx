@@ -36,7 +36,7 @@ const cardFaceStyle = {
   overflow: "hidden",
 };
 
-const Flashcard = ({ question, answer, isFlipped: propIsFlipped, setIsFlipped: propSetIsFlipped }) => {
+const Flashcard = ({ question, answer, detail, isFlipped: propIsFlipped, setIsFlipped: propSetIsFlipped }) => {
   const [localIsFlipped, setLocalIsFlipped] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -153,7 +153,9 @@ const Flashcard = ({ question, answer, isFlipped: propIsFlipped, setIsFlipped: p
         }}
       >
         <Box sx={{ p: 2, maxWidth: 300 }}>
-          <Typography sx={{ fontFamily: "'Lora', serif" }}>Detailed explanation of the answer goes here. This is a placeholder text until you implement the backend.</Typography>
+          <Typography sx={{ fontFamily: "'Lora', serif" }}>
+            {detail || "No detail available for this question"}
+          </Typography>
         </Box>
       </Popover>
     </Box>

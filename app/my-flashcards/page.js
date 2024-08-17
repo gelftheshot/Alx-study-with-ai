@@ -52,7 +52,7 @@ const MyFlashcards = () => {
           <Grid container spacing={3}>
             {selectedSet.cards.map((card, index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>
-                <Flashcard question={card.front} answer={card.back} />
+                <Flashcard question={card.front} answer={card.back} detail={card.detail} />
               </Grid>
             ))}
           </Grid>

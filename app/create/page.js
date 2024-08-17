@@ -120,6 +120,7 @@ const Createcard = () => {
                 <Flashcard 
                   question={card.front} 
                   answer={card.back} 
+                  detail={card.detail}
                 />
               </Box>
             ))}
