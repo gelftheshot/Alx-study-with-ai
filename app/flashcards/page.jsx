@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 import { collection, getDocs, doc, getDoc, setDoc } from 'firebase/firestore'
-import { db } from '../utils/firebase'
+import { db } from '../../utils/firebase'
 
 
 
