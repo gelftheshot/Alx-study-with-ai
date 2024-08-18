@@ -13,18 +13,18 @@ const MyFlashcards = () => {
   const [selectedSet, setSelectedSet] = useState(null);
 
   useEffect(() => {
+    const fetchFlashcardSets = async () => {
+      const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
+      const q = query(flashcardsRef, orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const sets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setFlashcardSets(sets);
+    };
+
     if (isSignedIn && user) {
       fetchFlashcardSets();
     }
-  }, [isSignedIn, user, fetchFlashcardSets]);
-
-  const fetchFlashcardSets = async () => {
-    const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
-    const q = query(flashcardsRef, orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    const sets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setFlashcardSets(sets);
-  };
+  }, [isSignedIn, user]);
 
   if (!isLoaded || !isSignedIn) {
     return <Container><Typography>Loading...</Typography></Container>;

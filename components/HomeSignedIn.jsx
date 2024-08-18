@@ -15,29 +15,29 @@ export default function HomeSignedIn() {
   const [totalCards, setTotalCards] = useState(0);
 
   useEffect(() => {
+    const fetchRecentSets = async () => {
+      const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
+      const q = query(flashcardsRef, orderBy('createdAt', 'desc'), limit(3));
+      const querySnapshot = await getDocs(q);
+      const sets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setRecentSets(sets);
+    };
+
+    const fetchTotalCards = async () => {
+      const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
+      const querySnapshot = await getDocs(flashcardsRef);
+      let total = 0;
+      querySnapshot.forEach(doc => {
+        total += doc.data().cards.length;
+      });
+      setTotalCards(total);
+    };
+
     if (user) {
       fetchRecentSets();
       fetchTotalCards();
     }
-  }, [user, fetchRecentSets, fetchTotalCards]);
-
-  const fetchRecentSets = async () => {
-    const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
-    const q = query(flashcardsRef, orderBy('createdAt', 'desc'), limit(3));
-    const querySnapshot = await getDocs(q);
-    const sets = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setRecentSets(sets);
-  };
-
-  const fetchTotalCards = async () => {
-    const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
-    const querySnapshot = await getDocs(flashcardsRef);
-    let total = 0;
-    querySnapshot.forEach(doc => {
-      total += doc.data().cards.length;
-    });
-    setTotalCards(total);
-  };
+  }, [user]);
 
   return (
     <Box sx={{ py: 8 }}>

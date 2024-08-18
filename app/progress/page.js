@@ -17,36 +17,36 @@ const Progress = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
+        const querySnapshot = await getDocs(flashcardsRef);
+        
+        let totalCards = 0;
+        let totalSets = querySnapshot.size;
+        
+        querySnapshot.forEach((doc) => {
+          const setData = doc.data();
+          totalCards += setData.cards.length;
+        });
+
+        setStats({
+          totalFlashcards: totalCards,
+          totalSets: totalSets,
+          averageCardsPerSet: totalSets > 0 ? Math.round(totalCards / totalSets) : 0,
+          studyStreak: 7, // This is a mock value, you'd need to implement actual streak tracking
+        });
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isSignedIn && user) {
       fetchUserStats();
     }
-  }, [isSignedIn, user, fetchUserStats]);
-
-  const fetchUserStats = async () => {
-    try {
-      const flashcardsRef = collection(db, 'users', user.id, 'flashcards');
-      const querySnapshot = await getDocs(flashcardsRef);
-      
-      let totalCards = 0;
-      let totalSets = querySnapshot.size;
-      
-      querySnapshot.forEach((doc) => {
-        const setData = doc.data();
-        totalCards += setData.cards.length;
-      });
-
-      setStats({
-        totalFlashcards: totalCards,
-        totalSets: totalSets,
-        averageCardsPerSet: totalSets > 0 ? Math.round(totalCards / totalSets) : 0,
-        studyStreak: 7, // This is a mock value, you'd need to implement actual streak tracking
-      });
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isSignedIn, user]);
 
   const mockChartData = [
     { name: 'Mon', cards: 12 },
