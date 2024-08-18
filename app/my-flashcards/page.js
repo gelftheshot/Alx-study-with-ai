@@ -16,7 +16,7 @@ const MyFlashcards = () => {
     if (isSignedIn && user) {
       fetchFlashcardSets();
     }
-  }, [isSignedIn, user]);
+  }, [isSignedIn, user, fetchFlashcardSets]);
 
   const fetchFlashcardSets = async () => {
     const flashcardsRef = collection(db, 'users', user.id, 'flashcards');

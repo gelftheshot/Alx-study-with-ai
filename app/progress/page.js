@@ -20,7 +20,7 @@ const Progress = () => {
     if (isSignedIn && user) {
       fetchUserStats();
     }
-  }, [isSignedIn, user]);
+  }, [isSignedIn, user, fetchUserStats]);
 
   const fetchUserStats = async () => {
     try {

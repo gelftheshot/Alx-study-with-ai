@@ -19,7 +19,7 @@ export default function HomeSignedIn() {
       fetchRecentSets();
       fetchTotalCards();
     }
-  }, [user]);
+  }, [user, fetchRecentSets, fetchTotalCards]);
 
   const fetchRecentSets = async () => {
     const flashcardsRef = collection(db, 'users', user.id, 'flashcards');

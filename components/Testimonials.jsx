@@ -16,7 +16,7 @@ const testimonials = [
   {
     name: 'Emily R.',
     role: 'High School Teacher',
-    content: 'I use FlashCard AI to create study materials for my students. It\'s a game-changer for both me and my class!',
+    content: 'I use FlashCard AI to create study materials for my students. It&apos;s a game-changer for both me and my class!',
     initials: 'ER',
   },
 ];
@@ -34,7 +34,7 @@ export default function Testimonials() {
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="body1" paragraph>
-                    "{testimonial.content}"
+                    &quot;{testimonial.content}&quot;
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar sx={{ width: 56, height: 56, mr: 2, bgcolor: 'primary.main' }}>

@@ -10,17 +10,9 @@ import { db } from '../../utils/firebase'
 const Flashcard = () => {
   const { user, isSignedIn, isLoaded } = useUser()
 
-  if (!isLoaded) {
-    return <div>Loading...</div>
-  }
-
-  if (!isSignedIn) {
-    return <div>Please sign in</div>
-  }
-
   useEffect(() => {
     const createUserAndFlashcards = async () => {
-      if (!user) return;
+      if (!user || !isSignedIn) return;
 
       const userRef = doc(db, 'users', user.id)
       const userSnap = await getDoc(userRef)
@@ -47,7 +39,15 @@ const Flashcard = () => {
     }
 
     createUserAndFlashcards()
-  }, [user])
+  }, [user, isSignedIn])
+
+  if (!isLoaded) {
+    return <div>Loading...</div>
+  }
+
+  if (!isSignedIn) {
+    return <div>Please sign in</div>
+  }
 
   return (
     <div>{user.id}</div>
