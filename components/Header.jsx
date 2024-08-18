@@ -16,6 +16,9 @@ export default function Header() {
           <Link href="/my-flashcards" passHref>
             <Button sx={{ my: 1, mx: 1.5, color: 'white' }}>My Flashcards</Button>
           </Link>
+          <Link href="/progress" passHref>
+            <Button sx={{ my: 1, mx: 1.5, color: 'white' }}>Progress</Button>
+          </Link>
         </nav>
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
