@@ -8,7 +8,7 @@ export default clerkMiddleware((auth, req) => {
   }
 }, {
   clockSkewInMs: 60000, // Allow for up to 1 minute of clock skew
-  debug: true, // Enable debug mode for more detailed logs
+  debug: false, // Disable debug mode
 })
 
 export const config = {
