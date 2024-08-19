@@ -1,6 +1,8 @@
 import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 
+export const runtime = 'edge';
+
 export async function POST(req) {
   const { prompt, count } = await req.json();
   const systemPrompt = `You are an expert flashcard generator. Given a topic, create a concise list of ${count} flashcards. Each flashcard should:
