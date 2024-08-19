@@ -38,23 +38,30 @@ const Createcard = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt: topic, count: cardCount }),
+        signal: controller.signal,
       });
       
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error('Failed to generate flashcards');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate flashcards');
       }
 
       const data = await response.json();
       setFlashcards(data.flashcards);
     } catch (error) {
       console.error('Error generating flashcards:', error);
-      // TODO: Show error message to user
+      alert(`Error generating flashcards: ${error.message}`);
     } finally {
       setLoading(false);
     }
