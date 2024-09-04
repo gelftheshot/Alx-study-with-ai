@@ -22,9 +22,15 @@ const ShortAnswerQuestion = ({ question, correctAnswer }) => {
     setIsCorrect(false);
   };
 
+  const buttonVariants = {
+    initial: { scale: 1 },
+    hover: { scale: 1.03 },
+    tap: { scale: 0.98 },
+  };
+
   return (
     <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
         {question}
       </Typography>
       <TextField
@@ -36,26 +42,33 @@ const ShortAnswerQuestion = ({ question, correctAnswer }) => {
         sx={{ mb: 2 }}
       />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {!submitted ? (
-          <Button variant="contained" onClick={handleSubmit}>
-            Submit
-          </Button>
-        ) : (
-          <Button variant="outlined" onClick={handleTryAgain}>
-            Try Again
-          </Button>
-        )}
+        <motion.div
+          variants={buttonVariants}
+          initial="initial"
+          whileHover="hover"
+          whileTap="tap"
+        >
+          {!submitted ? (
+            <Button variant="contained" onClick={handleSubmit}>
+              Submit
+            </Button>
+          ) : (
+            <Button variant="outlined" onClick={handleTryAgain}>
+              Try Again
+            </Button>
+          )}
+        </motion.div>
       </Box>
       <AnimatePresence>
         {submitted && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
           >
             <Typography
-              variant="body1"
+              variant="body2"
               sx={{
                 mt: 2,
                 p: 2,

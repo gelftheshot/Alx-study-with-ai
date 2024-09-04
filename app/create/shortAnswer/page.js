@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, Paper, Grid } from '@mui/material';
 import ShortAnswerQuestion from '../../../components/ShortAnswerQuestion';
 
 export default function ShortAnswerPage() {
@@ -10,7 +10,7 @@ export default function ShortAnswerPage() {
   const [error, setError] = useState(null);
 
   const fetchQuestions = async (topic, count) => {
-    const response = await fetch('/api/generate/shortanswer', {
+    const response = await fetch('/api/generate/shortAnswer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: topic, count }),
@@ -43,42 +43,47 @@ export default function ShortAnswerPage() {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <Container maxWidth="xl">
+      <Box sx={{ my: 6, mx: { xs: 2, sm: 4, md: 6, lg: 8 } }}>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
           Short Answer Questions
         </Typography>
-        <Box sx={{ mb: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, mb: 6 }}>
           <TextField
             fullWidth
             label="Enter a topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 3 }}
           />
           <Button
             variant="contained"
             onClick={handleGenerateQuestions}
             disabled={isLoading || !topic}
+            fullWidth
+            size="large"
           >
             Generate Questions
           </Button>
-        </Box>
+        </Paper>
         {error && (
-          <Typography color="error" sx={{ mb: 2 }}>
+          <Typography color="error" sx={{ mb: 3 }}>
             Error: {error}
           </Typography>
         )}
         {isLoading ? (
           <Typography>Generating questions...</Typography>
         ) : (
-          questions.map((q, index) => (
-            <ShortAnswerQuestion
-              key={index}
-              question={q.question}
-              correctAnswer={q.answer}
-            />
-          ))
+          <Grid container spacing={4}>
+            {questions.map((q, index) => (
+              <Grid item xs={12} key={index}>
+                <ShortAnswerQuestion
+                  question={q.question}
+                  correctAnswer={q.answer}
+                />
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Box>
     </Container>
