@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Box, TextField, Button, Typography, Container, Grid } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../../utils/firebase';
-import Flashcard from '../../components/flashcard';
+import { db } from '../../../utils/firebase';
+import Flashcard from '../../../components/flashcard';
 
 const Createcard = () => {
   const [topic, setTopic] = useState('');

@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../utils/firebase';
+import { db } from '../../../utils/firebase';
 import { Container, Typography, Grid, Box, Button } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Flashcard from '../../components/flashcard';
+import Flashcard from '../../../components/flashcard';
 
 const MyFlashcards = () => {
   const { user, isSignedIn, isLoaded } = useUser();

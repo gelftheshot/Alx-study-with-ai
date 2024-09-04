@@ -9,5 +9,14 @@ async function PdfToChunk(path) {
         chunkSize: 5000,
         chunkOverlap: 100,
     });
-    const splitedtext = await textsplitter(doc);
+    const splitedtext = await textsplitter.splitDocuments(doc);
+
+    const chunks = {};
+    splitedtext.forEach((chunk, index) => {
+        chunks[`chunk${index + 1}`] = chunk.pageContent;
+    });
+
+    return chunks;
 }
+
+export default PdfToChunk;
