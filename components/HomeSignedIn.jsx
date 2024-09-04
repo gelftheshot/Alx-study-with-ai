@@ -11,13 +11,13 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ViewListIcon from '@mui/icons-material/ViewList';
 
 const options = [
-  { title: 'Multiple Choice', subtitle: 'Generate questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50' },
-  { title: 'Short Answer', subtitle: 'Create brief questions', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3' },
-  { title: 'Flashcards', subtitle: 'Build your deck', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107' },
-  { title: 'Ask AI', subtitle: 'Query your files', icon: HelpOutlineIcon, href: '/ask-question', color: '#9C27B0' },
-  { title: 'My Sets', subtitle: 'View flashcards', icon: ViewListIcon, href: '/my-flashcards', color: '#FF5722' },
-  { title: 'Progress', subtitle: 'Track learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5' },
-  { title: 'More', subtitle: 'Explore options', icon: MoreHorizIcon, href: '/more-options', color: '#607D8B' },
+  { title: 'Multiple Choice', subtitle: 'Generate questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50', action: 'Create Quiz' },
+  { title: 'Short Answer', subtitle: 'Create brief questions', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3', action: 'Generate Questions' },
+  { title: 'Flashcards', subtitle: 'Build your deck', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107', action: 'Create Deck' },
+  { title: 'Ask AI', subtitle: 'Query your files', icon: HelpOutlineIcon, href: '/ask-question', color: '#9C27B0', action: 'Ask a Question' },
+  { title: 'My Sets', subtitle: 'View flashcards', icon: ViewListIcon, href: '/my-flashcards', color: '#FF5722', action: 'View Sets' },
+  { title: 'Progress', subtitle: 'Track learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5', action: 'View Progress' },
+  { title: 'More', subtitle: 'Explore options', icon: MoreHorizIcon, href: '/more-options', color: '#607D8B', action: 'Explore More' },
 ];
 
 export default function HomeSignedIn() {
@@ -91,7 +91,7 @@ export default function HomeSignedIn() {
                     }
                   }}
                 >
-                  Get Started
+                  {option.action}
                 </Button>
               </Paper>
             </Grid>
