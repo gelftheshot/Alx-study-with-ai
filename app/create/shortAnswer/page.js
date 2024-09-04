@@ -1,56 +1,85 @@
 'use client';
 import { useState } from 'react';
-import { Box, Container, Typography, TextField, Button, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
+import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import ShortAnswerQuestion from '../../../components/ShortAnswerQuestion';
 
-export default function ShortAnswer() {
-  const [inputType, setInputType] = useState('topic');
+export default function ShortAnswerPage() {
+  const [questions, setQuestions] = useState([]);
   const [topic, setTopic] = useState('');
-  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: { 'application/pdf': ['.pdf'] },
-    onDrop: (acceptedFiles) => {
-      setFile(acceptedFiles[0]);
-    },
-  });
+  const fetchQuestions = async (topic, count) => {
+    const response = await fetch('/api/generate/shortanswer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: topic, count }),
+    });
+    const rawData = await response.text();
+    console.log('Raw API response:', rawData);
+    
+    try {
+      const data = JSON.parse(rawData);
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      return data.questions;
+    } catch (err) {
+      throw new Error(`Failed to parse API response: ${err.message}`);
+    }
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // TODO: Implement API call to generate short answer questions
-    console.log('Generating short answer questions for:', inputType === 'topic' ? topic : file.name);
+  const handleGenerateQuestions = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const generatedQuestions = await fetchQuestions(topic, 5); // Generate 5 questions
+      setQuestions(generatedQuestions);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Generate Short Answer Questions
+          Short Answer Questions
         </Typography>
-        <FormControl component="fieldset" sx={{ mb: 2 }}>
-          <FormLabel component="legend">Choose input type:</FormLabel>
-          <RadioGroup row value={inputType} onChange={(e) => setInputType(e.target.value)}>
-            <FormControlLabel value="topic" control={<Radio />} label="Topic" />
-            <FormControlLabel value="pdf" control={<Radio />} label="PDF File" />
-          </RadioGroup>
-        </FormControl>
-        {inputType === 'topic' ? (
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
-            label="Enter topic"
+            label="Enter a topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             sx={{ mb: 2 }}
           />
-        ) : (
-          <Box {...getRootProps()} sx={{ border: '2px dashed grey', p: 2, mb: 2, cursor: 'pointer' }}>
-            <input {...getInputProps()} />
-            <Typography>{file ? `File selected: ${file.name}` : 'Drag and drop a PDF file here, or click to select'}</Typography>
-          </Box>
+          <Button
+            variant="contained"
+            onClick={handleGenerateQuestions}
+            disabled={isLoading || !topic}
+          >
+            Generate Questions
+          </Button>
+        </Box>
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            Error: {error}
+          </Typography>
         )}
-        <Button variant="contained" onClick={handleSubmit}>
-          Generate Questions
-        </Button>
+        {isLoading ? (
+          <Typography>Generating questions...</Typography>
+        ) : (
+          questions.map((q, index) => (
+            <ShortAnswerQuestion
+              key={index}
+              question={q.question}
+              correctAnswer={q.answer}
+            />
+          ))
+        )}
       </Box>
     </Container>
   );

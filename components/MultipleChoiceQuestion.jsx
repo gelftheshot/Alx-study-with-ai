@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { Box, Typography, Button, Grid } from '@mui/material';
+import { Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const MultipleChoiceQuestion = ({ question, options, correctAnswer }) => {
+const MultipleChoiceQuestion = ({ question, options = [], correctAnswer }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
 
@@ -19,81 +19,89 @@ const MultipleChoiceQuestion = ({ question, options, correctAnswer }) => {
 
   const buttonVariants = {
     initial: { scale: 1 },
-    hover: { scale: 1.05 },
-    tap: { scale: 0.95 },
-    correct: { backgroundColor: '#4caf50', color: '#ffffff' },
-    incorrect: { backgroundColor: '#f44336', color: '#ffffff' },
-  };
-
-  const incorrectAnimation = {
-    animate: {
-      x: [0, -10, 10, -10, 10, 0],
-      transition: { duration: 0.5 }
-    }
+    hover: { scale: 1.03 },
+    tap: { scale: 0.98 },
   };
 
   return (
-    <Box sx={{ maxWidth: 600, margin: 'auto', p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        {question}
-      </Typography>
-      <Grid container spacing={2}>
-        {options.map((option, index) => (
-          <Grid item xs={6} key={index}>
-            <motion.div
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              variants={buttonVariants}
-              animate={
-                selectedAnswer === option
-                  ? isCorrect
-                    ? 'correct'
-                    : 'incorrect'
-                  : 'initial'
-              }
-              {...(selectedAnswer === option && !isCorrect ? incorrectAnimation : {})}
-            >
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => handleAnswerClick(option)}
-                disabled={selectedAnswer !== null && isCorrect}
-                sx={{ justifyContent: 'flex-start', py: 1 }}
+    <Paper elevation={3} sx={{ p: 1, mb: 2, borderRadius: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
+          {question}
+        </Typography>
+        <Grid container spacing={1}>
+          {options.map((option, index) => (
+            <Grid item xs={6} key={index}>
+              <motion.div
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
               >
-                <Typography>
-                  {String.fromCharCode(65 + index)}. {option}
-                </Typography>
-              </Button>
-            </motion.div>
-          </Grid>
-        ))}
-      </Grid>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => handleAnswerClick(option)}
+                  disabled={selectedAnswer !== null}
+                  sx={{
+                    justifyContent: 'flex-start',
+                    py: 0.5,
+                    textTransform: 'none',
+                    fontWeight: 'normal',
+                    bgcolor: selectedAnswer === option
+                      ? isCorrect
+                        ? '#4caf50'
+                        : '#f44336'
+                      : 'inherit',
+                    color: selectedAnswer === option ? 'white' : 'inherit',
+                    '&:hover': {
+                      bgcolor: selectedAnswer === option
+                        ? isCorrect
+                          ? '#45a049'
+                          : '#d32f2f'
+                        : 'inherit',
+                    },
+                  }}
+                >
+                  <Typography variant="body2">
+                    {String.fromCharCode(65 + index)}. {option}
+                  </Typography>
+                </Button>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
       <AnimatePresence>
         {selectedAnswer && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
           >
-            <Typography
-              variant="h6"
-              sx={{ mt: 2, textAlign: 'center', color: isCorrect ? 'green' : 'red' }}
-            >
-              {isCorrect ? 'Correct!' : 'Incorrect. Try again!'}
-            </Typography>
-            {!isCorrect && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <Button variant="contained" onClick={handleTryAgain}>
+            <Box sx={{ mt: 1, textAlign: 'center' }}>
+              <Typography
+                variant="body2"
+                sx={{ color: isCorrect ? 'green' : 'red' }}
+              >
+                {isCorrect ? 'Correct!' : 'Incorrect.'}
+              </Typography>
+              {!isCorrect && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleTryAgain}
+                  sx={{ mt: 0.5 }}
+                >
                   Try Again
                 </Button>
-              </Box>
-            )}
+              )}
+            </Box>
           </motion.div>
         )}
       </AnimatePresence>
-    </Box>
+    </Paper>
   );
 };
 

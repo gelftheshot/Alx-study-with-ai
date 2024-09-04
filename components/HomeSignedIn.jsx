@@ -11,9 +11,9 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ViewListIcon from '@mui/icons-material/ViewList';
 
 const options = [
-  { title: 'Multiple Choice', subtitle: 'Generate questions', icon: QuizIcon, href: '/generate-mcq', color: '#4CAF50' },
-  { title: 'Short Answer', subtitle: 'Create brief questions', icon: ShortTextIcon, href: '/generate-short-answer', color: '#2196F3' },
-  { title: 'Flashcards', subtitle: 'Build your deck', icon: StyleIcon, href: '/create', color: '#FFC107' },
+  { title: 'Multiple Choice', subtitle: 'Generate questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50' },
+  { title: 'Short Answer', subtitle: 'Create brief questions', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3' },
+  { title: 'Flashcards', subtitle: 'Build your deck', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107' },
   { title: 'Ask AI', subtitle: 'Query your files', icon: HelpOutlineIcon, href: '/ask-question', color: '#9C27B0' },
   { title: 'My Sets', subtitle: 'View flashcards', icon: ViewListIcon, href: '/my-flashcards', color: '#FF5722' },
   { title: 'Progress', subtitle: 'Track learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5' },
