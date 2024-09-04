@@ -1,22 +1,33 @@
 'use client';
-import { useState } from 'react';
-import { Box, TextField, Button, Typography } from '@mui/material';
+import { useState, useCallback } from 'react';
+import { Box, TextField, Button, Typography, Paper } from '@mui/material';
+import { useDropzone } from 'react-dropzone';
 
 const TopicOrFileInput = ({ onTopicChange, onFileUpload }) => {
   const [inputType, setInputType] = useState('topic');
   const [topic, setTopic] = useState('');
-  const [file, setFile] = useState(null);
 
   const handleTopicChange = (e) => {
     setTopic(e.target.value);
     onTopicChange(e.target.value);
   };
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    onFileUpload(selectedFile);
-  };
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles.length > 0) {
+      onFileUpload(acceptedFiles[0]);
+    }
+  }, [onFileUpload]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'text/plain': ['.txt'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+    },
+    multiple: false
+  });
 
   return (
     <Box>
@@ -45,25 +56,23 @@ const TopicOrFileInput = ({ onTopicChange, onFileUpload }) => {
           rows={4}
         />
       ) : (
-        <Box>
-          <input
-            accept=".txt,.pdf,.doc,.docx"
-            style={{ display: 'none' }}
-            id="file-upload"
-            type="file"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="file-upload">
-            <Button variant="contained" component="span">
-              Upload File
-            </Button>
-          </label>
-          {file && (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Selected file: {file.name}
-            </Typography>
+        <Paper
+          {...getRootProps()}
+          elevation={3}
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            cursor: 'pointer',
+            bgcolor: isDragActive ? 'action.hover' : 'background.paper',
+          }}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <Typography>Drop the file here ...</Typography>
+          ) : (
+            <Typography>Drag and drop a file here, or click to select a file</Typography>
           )}
-        </Box>
+        </Paper>
       )}
     </Box>
   );

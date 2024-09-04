@@ -23,7 +23,7 @@ const Createcard = () => {
 
   const handleFileUpload = (uploadedFile) => {
     setFile(uploadedFile);
-    setTopic('');
+    setTopic(uploadedFile.name);
   };
 
   const saveFlashcards = async () => {
@@ -77,10 +77,13 @@ const Createcard = () => {
     }
   };
 
-  const readFileContent = async (file) => {
-    // Implement file reading logic here
-    // For now, we'll just return a placeholder
-    return "File content placeholder";
+  const readFileContent = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsText(file);
+    });
   };
 
   return (
