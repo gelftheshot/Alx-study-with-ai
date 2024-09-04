@@ -1,18 +1,30 @@
 'use client';
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Grid } from '@mui/material';
+import { Box, TextField, Button, Typography, Container, Grid, Paper } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../../utils/firebase';
 import Flashcard from '../../../components/flashcard';
+import TopicOrFileInput from '../../../components/TopicOrFileInput';
 
 const Createcard = () => {
   const [topic, setTopic] = useState('');
+  const [file, setFile] = useState(null);
   const [cardCount, setCardCount] = useState(10);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const { user } = useUser();
+
+  const handleTopicChange = (newTopic) => {
+    setTopic(newTopic);
+    setFile(null);
+  };
+
+  const handleFileUpload = (uploadedFile) => {
+    setFile(uploadedFile);
+    setTopic('');
+  };
 
   const saveFlashcards = async () => {
     if (!user || flashcards.length === 0) return;
@@ -38,20 +50,18 @@ const Createcard = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
-
+      let content = topic;
+      if (file) {
+        content = await readFileContent(file);
+      }
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: topic, count: cardCount }),
-        signal: controller.signal,
+        body: JSON.stringify({ prompt: content, count: cardCount }),
       });
       
-      clearTimeout(timeoutId);
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to generate flashcards');
@@ -67,49 +77,48 @@ const Createcard = () => {
     }
   };
 
+  const readFileContent = async (file) => {
+    // Implement file reading logic here
+    // For now, we'll just return a placeholder
+    return "File content placeholder";
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Create Flashcards
         </Typography>
-        <Grid container spacing={2} alignItems="flex-start">
-          <Grid item xs={12} md={8}>
-            <TextField
-              fullWidth
-              label="Topic"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              margin="normal"
-              required
-              multiline
-              rows={6}
-            />
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Grid container spacing={2} alignItems="flex-start">
+            <Grid item xs={12} md={8}>
+              <TopicOrFileInput onTopicChange={handleTopicChange} onFileUpload={handleFileUpload} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Number of Cards"
+                type="number"
+                value={cardCount}
+                onChange={(e) => setCardCount(Math.min(30, Math.max(1, parseInt(e.target.value))))}
+                inputProps={{ min: 1, max: 30 }}
+                margin="normal"
+                required
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2 }}
+                disabled={loading || (!topic && !file)}
+                onClick={handleSubmit}
+              >
+                {loading ? 'Generating...' : 'Generate Flashcards'}
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              fullWidth
-              label="Number of Cards"
-              type="number"
-              value={cardCount}
-              onChange={(e) => setCardCount(Math.min(30, Math.max(1, parseInt(e.target.value))))}
-              inputProps={{ min: 1, max: 30 }}
-              margin="normal"
-              required
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
-              disabled={loading}
-              onClick={handleSubmit}
-            >
-              {loading ? 'Generating...' : 'Generate Flashcards'}
-            </Button>
-          </Grid>
-        </Grid>
+        </Paper>
       </Box>
 
       {flashcards.length > 0 && (
