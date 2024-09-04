@@ -94,31 +94,33 @@ const Createcard = () => {
         </Typography>
         <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
           <Grid container spacing={2} alignItems="flex-start">
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={9}>
               <TopicOrFileInput onTopicChange={handleTopicChange} onFileUpload={handleFileUpload} />
             </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                fullWidth
-                label="Number of Cards"
-                type="number"
-                value={cardCount}
-                onChange={(e) => setCardCount(Math.min(30, Math.max(1, parseInt(e.target.value))))}
-                inputProps={{ min: 1, max: 30 }}
-                margin="normal"
-                required
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 2 }}
-                disabled={loading || (!topic && !file)}
-                onClick={handleSubmit}
-              >
-                {loading ? 'Generating...' : 'Generate Flashcards'}
-              </Button>
+            <Grid item xs={12} md={3}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <TextField
+                  fullWidth
+                  label="Number of Cards"
+                  type="number"
+                  value={cardCount}
+                  onChange={(e) => setCardCount(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
+                  inputProps={{ min: 1, max: 30 }}
+                  margin="normal"
+                  required
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  disabled={loading || (!topic && !file)}
+                  onClick={handleSubmit}
+                >
+                  {loading ? 'Generating...' : 'Generate Flashcards'}
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </Paper>

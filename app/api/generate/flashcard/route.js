@@ -6,13 +6,13 @@ export const maxDuration = 300; // Set timeout to 5 minutes (300 seconds)
 
 export async function POST(req) {
   const { prompt, count } = await req.json();
-  const systemPrompt = `You are an expert flashcard generator. Given a topic, create a concise list of ${count} flashcards. Each flashcard should:
+  const systemPrompt = `You are an expert flashcard generator. Given a topic, create a concise list of exactly ${count} flashcards. Each flashcard should:
    1. Focus on a key concept within the topic.
    2. Have a clear, thought-provoking question on the front.
    3. Provide a detailed, accurate answer on the back, including explanations and examples where appropriate.
    4. Be suitable for effective learning and recall.
 
-   Return the flashcards as a JSON array of objects, each with 'front', 'back', and 'detail' properties as strings.
+   Return exactly ${count} flashcards as a JSON array of objects, each with 'front', 'back', and 'detail' properties as strings.
    Example format: [{"front": "Question 1?", "back": "Answer 1", "detail": "Detailed explanation 1"}, {"front": "Question 2?", "back": "Answer 2", "detail": "Detailed explanation 2"}]`;
 
   try {

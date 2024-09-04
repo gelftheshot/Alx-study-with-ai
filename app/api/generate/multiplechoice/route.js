@@ -6,13 +6,13 @@ export const maxDuration = 300; // Set timeout to 5 minutes (300 seconds)
 
 export async function POST(req) {
   const { prompt, count } = await req.json();
-  const systemPrompt = `You are an expert multiple choice question generator. Given a topic, create a concise list of ${count} multiple choice questions. Each question should:
+  const systemPrompt = `You are an expert multiple choice question generator. Given a topic, create a concise list of exactly ${count} multiple choice questions. Each question should:
    1. Focus on a key concept within the topic.
    2. Have a clear, unambiguous question.
    3. Provide four answer options (A, B, C, D), with only one correct answer.
    4. Be suitable for effective learning and assessment.
 
-   Return the questions as a JSON array of objects, each with 'question', 'correctAnswer', 'A', 'B', 'C', and 'D' properties as strings.
+   Return exactly ${count} questions as a JSON array of objects, each with 'question', 'correctAnswer', 'A', 'B', 'C', and 'D' properties as strings.
    Example format: [{"question": "What is the capital of France?", "correctAnswer": "Paris", "A": "London", "B": "Berlin", "C": "Paris", "D": "Madrid"}]`;
 
   try {

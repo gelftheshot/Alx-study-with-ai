@@ -6,13 +6,13 @@ export const maxDuration = 300; // Set timeout to 5 minutes (300 seconds)
 
 export async function POST(req) {
   const { prompt, count } = await req.json();
-  const systemPrompt = `You are an expert short answer question generator. Given a topic, create a concise list of ${count} short answer questions. Each question should:
+  const systemPrompt = `You are an expert short answer question generator. Given a topic, create a concise list of exactly ${count} short answer questions. Each question should:
    1. Focus on a key concept within the topic.
    2. Have a clear, specific question that requires a brief response.
    3. Provide a concise, accurate answer.
    4. Be suitable for effective learning and assessment.
 
-   Return the questions as a JSON array of objects, each with 'question' and 'answer' properties as strings.
+   Return exactly ${count} questions as a JSON array of objects, each with 'question' and 'answer' properties as strings.
    Example format: [{"question": "What is the capital of France?", "answer": "Paris"}]`;
 
   try {

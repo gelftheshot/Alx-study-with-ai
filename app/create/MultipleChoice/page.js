@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Box, Container, Typography, Button, Paper, Grid } from '@mui/material';
+import { Box, Container, Typography, Button, Paper, Grid, TextField } from '@mui/material';
 import MultipleChoiceQuestion from '../../../components/MultipleChoiceQuestion';
 import TopicOrFileInput from '../../../components/TopicOrFileInput';
 
@@ -10,6 +10,7 @@ export default function MultipleChoicePage() {
   const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [questionCount, setQuestionCount] = useState(5);
 
   const handleTopicChange = (newTopic) => {
     setTopic(newTopic);
@@ -29,7 +30,7 @@ export default function MultipleChoicePage() {
       if (file) {
         content = await readFileContent(file);
       }
-      const generatedQuestions = await fetchQuestions(content, 5);
+      const generatedQuestions = await fetchQuestions(content, questionCount);
       setQuestions(generatedQuestions);
     } catch (err) {
       setError(err.message);
@@ -56,17 +57,35 @@ export default function MultipleChoicePage() {
           Multiple Choice Questions
         </Typography>
         <Paper elevation={3} sx={{ p: 3, mb: 6 }}>
-          <TopicOrFileInput onTopicChange={handleTopicChange} onFileUpload={handleFileUpload} />
-          <Button
-            variant="contained"
-            onClick={handleGenerateQuestions}
-            disabled={isLoading || (!topic && !file)}
-            fullWidth
-            size="large"
-            sx={{ mt: 3 }}
-          >
-            Generate Questions
-          </Button>
+          <Grid container spacing={2} alignItems="flex-start">
+            <Grid item xs={12} md={9}>
+              <TopicOrFileInput onTopicChange={handleTopicChange} onFileUpload={handleFileUpload} />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <TextField
+                  fullWidth
+                  label="Number of Questions"
+                  type="number"
+                  value={questionCount}
+                  onChange={(e) => setQuestionCount(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
+                  inputProps={{ min: 1, max: 30 }}
+                  margin="normal"
+                  required
+                />
+                <Button
+                  variant="contained"
+                  onClick={handleGenerateQuestions}
+                  disabled={isLoading || (!topic && !file)}
+                  fullWidth
+                  size="large"
+                  sx={{ mt: 2 }}
+                >
+                  Generate Questions
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Paper>
         {error && (
           <Typography color="error" sx={{ mb: 3 }}>
