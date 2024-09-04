@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper, Grid, TextField } from '@mui/material';
 import MultipleChoiceQuestion from '../../../components/MultipleChoiceQuestion';
 import TopicOrFileInput from '../../../components/TopicOrFileInput';
+import Slider from '@mui/material/Slider';
 
 export default function MultipleChoicePage() {
   const [questions, setQuestions] = useState([]);
@@ -11,6 +12,7 @@ export default function MultipleChoicePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [questionCount, setQuestionCount] = useState(5);
+  const [difficulty, setDifficulty] = useState(50);
 
   const handleTopicChange = (newTopic) => {
     setTopic(newTopic);
@@ -30,7 +32,7 @@ export default function MultipleChoicePage() {
       if (file) {
         content = await readFileContent(file);
       }
-      const generatedQuestions = await fetchQuestions(content, questionCount);
+      const generatedQuestions = await fetchQuestions(content, questionCount, difficulty);
       setQuestions(generatedQuestions);
     } catch (err) {
       setError(err.message);
@@ -45,9 +47,22 @@ export default function MultipleChoicePage() {
     return "File content placeholder";
   };
 
-  const fetchQuestions = async (content, count) => {
-    // Your existing fetchQuestions logic here
-    // Make sure to handle both topic and file content cases
+  const fetchQuestions = async (content, count, difficulty) => {
+    const response = await fetch('/api/generate/multiplechoice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: content, count, difficulty }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate questions');
+    }
+
+    const data = await response.json();
+    return data.questions;
   };
 
   return (
@@ -72,6 +87,17 @@ export default function MultipleChoicePage() {
                   inputProps={{ min: 1, max: 30 }}
                   margin="normal"
                   required
+                />
+                <Typography gutterBottom>Difficulty: {difficulty}%</Typography>
+                <Slider
+                  value={difficulty}
+                  onChange={(e, newValue) => setDifficulty(newValue)}
+                  aria-labelledby="difficulty-slider"
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={100}
                 />
                 <Button
                   variant="contained"
