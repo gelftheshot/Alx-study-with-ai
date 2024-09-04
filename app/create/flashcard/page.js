@@ -59,7 +59,11 @@ const Createcard = () => {
       setFlashcards(generatedFlashcards);
     } catch (error) {
       console.error('Error generating flashcards:', error);
-      alert(`Error generating flashcards: ${error.message}`);
+      if (error.message.includes('Resource has been exhausted')) {
+        alert('We\'re experiencing high demand. Please try again in a few minutes.');
+      } else {
+        alert(`Error generating flashcards: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -75,21 +79,39 @@ const Createcard = () => {
   };
 
   const fetchQuestions = async (content, count, difficulty) => {
-    const response = await fetch('/api/generate/flashcard', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: content, count, difficulty }),
-    });
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate flashcards');
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await fetch('/api/generate/flashcard', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: content, count, difficulty }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 429) {
+            const delay = baseDelay * Math.pow(2, attempt);
+            console.log(`Rate limited. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          throw new Error(errorData.error || 'Failed to generate flashcards');
+        }
+
+        const data = await response.json();
+        return data.flashcards;
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          throw error;
+        }
+      }
     }
-
-    const data = await response.json();
-    return data.flashcards;
+    throw new Error('Max retries reached. Failed to generate flashcards.');
   };
 
   return (
