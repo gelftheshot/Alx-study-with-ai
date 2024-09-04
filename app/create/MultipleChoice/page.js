@@ -28,11 +28,28 @@ export default function MultipleChoicePage() {
     setIsLoading(true);
     setError(null);
     try {
-      let content = topic;
+      let generatedQuestions;
       if (file) {
-        content = await readFileContent(file);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('count', questionCount);
+        formData.append('difficulty', difficulty);
+
+        const response = await fetch('/api/generatefrompdf/multiplechoice', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to generate questions from PDF');
+        }
+
+        const data = await response.json();
+        generatedQuestions = data.questions;
+      } else {
+        generatedQuestions = await fetchQuestions(topic, questionCount, difficulty);
       }
-      const generatedQuestions = await fetchQuestions(content, questionCount, difficulty);
       console.log('Generated questions:', generatedQuestions);
       setQuestions(generatedQuestions);
     } catch (err) {
@@ -40,12 +57,6 @@ export default function MultipleChoicePage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const readFileContent = async (file) => {
-    // Implement file reading logic here
-    // For now, we'll just return a placeholder
-    return "File content placeholder";
   };
 
   const fetchQuestions = async (content, count, difficulty) => {
