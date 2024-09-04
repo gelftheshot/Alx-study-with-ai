@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Grid, Paper } from '@mui/material';
+import { Box, TextField, Button, Typography, Container, Grid, Paper, Slider } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../../utils/firebase';
@@ -11,6 +11,7 @@ const Createcard = () => {
   const [topic, setTopic] = useState('');
   const [file, setFile] = useState(null);
   const [cardCount, setCardCount] = useState(10);
+  const [difficulty, setDifficulty] = useState(50);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -54,21 +55,8 @@ const Createcard = () => {
       if (file) {
         content = await readFileContent(file);
       }
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: content, count: cardCount }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate flashcards');
-      }
-
-      const data = await response.json();
-      setFlashcards(data.flashcards);
+      const generatedFlashcards = await fetchQuestions(content, cardCount, difficulty);
+      setFlashcards(generatedFlashcards);
     } catch (error) {
       console.error('Error generating flashcards:', error);
       alert(`Error generating flashcards: ${error.message}`);
@@ -84,6 +72,24 @@ const Createcard = () => {
       reader.onerror = (error) => reject(error);
       reader.readAsText(file);
     });
+  };
+
+  const fetchQuestions = async (content, count, difficulty) => {
+    const response = await fetch('/api/generate/flashcard', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: content, count, difficulty }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate flashcards');
+    }
+
+    const data = await response.json();
+    return data.flashcards;
   };
 
   return (
@@ -108,6 +114,17 @@ const Createcard = () => {
                   inputProps={{ min: 1, max: 30 }}
                   margin="normal"
                   required
+                />
+                <Typography gutterBottom>Difficulty: {difficulty}%</Typography>
+                <Slider
+                  value={difficulty}
+                  onChange={(e, newValue) => setDifficulty(newValue)}
+                  aria-labelledby="difficulty-slider"
+                  valueLabelDisplay="auto"
+                  step={1}
+                  marks
+                  min={1}
+                  max={100}
                 />
                 <Button
                   type="submit"
@@ -142,6 +159,7 @@ const Createcard = () => {
                   question={card.front} 
                   answer={card.back} 
                   detail={card.detail}
+                  strength={card.strength}
                 />
               </Box>
             ))}

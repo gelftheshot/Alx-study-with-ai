@@ -36,7 +36,7 @@ const cardFaceStyle = {
   overflow: "hidden",
 };
 
-const Flashcard = ({ question, answer, detail, isFlipped: propIsFlipped, setIsFlipped: propSetIsFlipped }) => {
+const Flashcard = ({ question, answer, detail, strength, isFlipped: propIsFlipped, setIsFlipped: propSetIsFlipped }) => {
   const [localIsFlipped, setLocalIsFlipped] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -158,6 +158,25 @@ const Flashcard = ({ question, answer, detail, isFlipped: propIsFlipped, setIsFl
           </Typography>
         </Box>
       </Popover>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          width: 30,
+          height: 30,
+          borderRadius: '50%',
+          backgroundColor: `rgba(33, 150, 243, ${parseInt(strength) / 100})`,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '0.8rem',
+        }}
+      >
+        {strength}
+      </Box>
     </Box>
   );
 };

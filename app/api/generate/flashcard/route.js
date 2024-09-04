@@ -11,9 +11,10 @@ export async function POST(req) {
    2. Have a clear, thought-provoking question on the front.
    3. Provide a detailed, accurate answer on the back, including explanations and examples where appropriate.
    4. Be suitable for effective learning and recall.
+   5. Include a strength value between 1 and 100, indicating the importance or difficulty of the question.
 
-   Return exactly ${count} flashcards as a JSON array of objects, each with 'front', 'back', and 'detail' properties as strings.
-   Example format: [{"front": "Question 1?", "back": "Answer 1", "detail": "Detailed explanation 1"}, {"front": "Question 2?", "back": "Answer 2", "detail": "Detailed explanation 2"}]`;
+   Return exactly ${count} flashcards as a JSON array of objects, each with 'front', 'back', 'detail', and 'strength' properties as strings.
+   Example format: [{"front": "Question 1?", "back": "Answer 1", "detail": "Detailed explanation 1", "strength": "75"}, {"front": "Question 2?", "back": "Answer 2", "detail": "Detailed explanation 2", "strength": "60"}]`;
 
   try {
     const result = await Promise.race([
@@ -34,7 +35,7 @@ export async function POST(req) {
       throw new Error('Unexpected result format');
     }
 
-    if (!Array.isArray(flashcards) || !flashcards.every(card => card.front && card.back && card.detail)) {
+    if (!Array.isArray(flashcards) || !flashcards.every(card => card.front && card.back && card.detail && card.strength)) {
       throw new Error('Invalid flashcard structure');
     }
 
