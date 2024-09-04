@@ -3,13 +3,16 @@ import { useState } from 'react';
 import { Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const MultipleChoiceQuestion = ({ question, options = [], correctAnswer }) => {
+const MultipleChoiceQuestion = ({ question, options, correctAnswer }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
 
-  const handleAnswerClick = (answer) => {
-    setSelectedAnswer(answer);
-    setIsCorrect(answer === correctAnswer);
+  console.log('Question props:', { question, options, correctAnswer });
+
+  const handleAnswerClick = (answer, index) => {
+    const selectedLetter = String.fromCharCode(65 + index); // Convert index to letter (A, B, C, D)
+    setSelectedAnswer(selectedLetter);
+    setIsCorrect(selectedLetter === correctAnswer);
   };
 
   const handleTryAgain = () => {
@@ -25,53 +28,51 @@ const MultipleChoiceQuestion = ({ question, options = [], correctAnswer }) => {
 
   return (
     <Paper elevation={3} sx={{ p: 1, mb: 2, borderRadius: 2 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
-          {question}
-        </Typography>
-        <Grid container spacing={1}>
-          {options.map((option, index) => (
-            <Grid item xs={6} key={index}>
-              <motion.div
-                variants={buttonVariants}
-                initial="initial"
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => handleAnswerClick(option)}
-                  disabled={selectedAnswer !== null}
-                  sx={{
-                    justifyContent: 'flex-start',
-                    py: 0.5,
-                    textTransform: 'none',
-                    fontWeight: 'normal',
-                    bgcolor: selectedAnswer === option
+      <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
+        {question}
+      </Typography>
+      <Grid container spacing={2}>
+        {options.map((option, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            <motion.div
+              variants={buttonVariants}
+              initial="initial"
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={() => handleAnswerClick(option, index)}
+                disabled={selectedAnswer !== null}
+                sx={{
+                  justifyContent: 'flex-start',
+                  py: 0.5,
+                  textTransform: 'none',
+                  fontWeight: 'normal',
+                  bgcolor: selectedAnswer === String.fromCharCode(65 + index)
+                    ? isCorrect
+                      ? '#4caf50'
+                      : '#f44336'
+                    : 'inherit',
+                  color: selectedAnswer === String.fromCharCode(65 + index) ? 'white' : 'inherit',
+                  '&:hover': {
+                    bgcolor: selectedAnswer === String.fromCharCode(65 + index)
                       ? isCorrect
-                        ? '#4caf50'
-                        : '#f44336'
+                        ? '#45a049'
+                        : '#d32f2f'
                       : 'inherit',
-                    color: selectedAnswer === option ? 'white' : 'inherit',
-                    '&:hover': {
-                      bgcolor: selectedAnswer === option
-                        ? isCorrect
-                          ? '#45a049'
-                          : '#d32f2f'
-                        : 'inherit',
-                    },
-                  }}
-                >
-                  <Typography variant="body2">
-                    {String.fromCharCode(65 + index)}. {option}
-                  </Typography>
-                </Button>
-              </motion.div>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                  },
+                }}
+              >
+                <Typography variant="body2">
+                  {String.fromCharCode(65 + index)}. {option}
+                </Typography>
+              </Button>
+            </motion.div>
+          </Grid>
+        ))}
+      </Grid>
       <AnimatePresence>
         {selectedAnswer && (
           <motion.div

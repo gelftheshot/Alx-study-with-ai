@@ -58,7 +58,7 @@ export async function POST(req) {
     return Response.json({ 
       error: error.message, 
       details: error.stack,
-      rawResult: result 
+      rawResult: error.rawResult || 'No raw result available'
     }, { status: 500 });
   }
 }

@@ -33,6 +33,7 @@ export default function MultipleChoicePage() {
         content = await readFileContent(file);
       }
       const generatedQuestions = await fetchQuestions(content, questionCount, difficulty);
+      console.log('Generated questions:', generatedQuestions);
       setQuestions(generatedQuestions);
     } catch (err) {
       setError(err.message);
