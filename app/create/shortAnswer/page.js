@@ -28,41 +28,44 @@ export default function ShortAnswerPage() {
     setIsLoading(true);
     setError(null);
     try {
-      let content = topic;
+      let response;
       if (file) {
-        content = await readFileContent(file);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('count', questionCount.toString());
+        formData.append('difficulty', difficulty.toString());
+
+        response = await fetch('/api/generatefrompdf/shortAnswer', {
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        response = await fetch('/api/generate/shortAnswer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: topic, count: questionCount, difficulty }),
+        });
       }
-      const generatedQuestions = await fetchQuestions(content, questionCount, difficulty);
-      setQuestions(generatedQuestions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate questions');
+      }
+
+      const data = await response.json();
+      setQuestions(data.questions);
     } catch (err) {
-      setError(err.message);
+      console.error('Error generating questions:', err);
+      if (err.message.includes('Resource has been exhausted')) {
+        setError('Were experiencing high demand. Please try again in a few minutes.');
+      } else {
+        setError(`Failed to generate questions: ${err.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const readFileContent = async (file) => {
-    // Implement file reading logic here
-    // For now, we'll just return a placeholder
-    return "File content placeholder";
-  };
-
-  const fetchQuestions = async (content, count, difficulty) => {
-    const response = await fetch('/api/generate/shortAnswer', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: content, count, difficulty }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate questions');
-    }
-
-    const data = await response.json();
-    return data.questions;
   };
 
   return (

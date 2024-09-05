@@ -1,47 +1,94 @@
-import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
-export const maxDuration = 300; // Set timeout to 5 minutes (300 seconds)
+export const maxDuration = 300;
+
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'http://localhost:3000';
+const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'FlashcardsWithAI';
 
 export async function POST(req) {
   const { prompt, count, difficulty } = await req.json();
-  const systemPrompt = `You are an expert flashcard generator. Given a topic, create a concise list of exactly ${count} flashcards with a difficulty level of ${difficulty}% (1% being easiest, 100% being hardest). Each flashcard should:
-   1. Focus on a key concept within the topic.
-   2. Have a clear, thought-provoking question on the front.
-   3. Provide a detailed, accurate answer on the back, including explanations and examples where appropriate.
-   4. Be suitable for effective learning and recall.
-   5. Match the specified difficulty level.
+  const systemPrompt = `Generate ${count} flashcards on the given topic with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
-   Return exactly ${count} flashcards as a JSON array of objects, each with 'front', 'back', 'detail', and 'strength' properties as strings. The 'strength' value should reflect the specified difficulty level.
-   Example format: [{"front": "Question 1?", "back": "Answer 1", "detail": "Detailed explanation 1", "strength": "${difficulty}"}, {"front": "Question 2?", "back": "Answer 2", "detail": "Detailed explanation 2", "strength": "${difficulty}"}]`;
+Instructions:
+1. Each flashcard should focus on a key concept within the topic.
+2. The front should have a clear, thought-provoking question.
+3. The back should provide a concise, accurate answer.
+4. Include a 'detail' field for additional information or context.
+5. Set the 'strength' value to match the specified difficulty level.
+6. Do not include any text outside of the JSON structure.
+7. Ensure the response is valid JSON and can be parsed directly.
+
+Format your response ONLY as a JSON array of objects with this structure:
+[
+  {
+    "front": "Question on the front of the flashcard?",
+    "back": "Answer on the back of the flashcard",
+    "detail": "Additional explanation or context",
+    "strength": "${difficulty}"
+  }
+]
+
+Generate exactly ${count} flashcards in this format. Do not include any other text or explanations.`;
 
   try {
-    const result = await Promise.race([
-      generateText({
-        model: google('models/gemini-1.5-pro-latest'),
-        system: systemPrompt,
-        prompt,
-      }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 280000)) // 280 seconds timeout
-    ]);
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "HTTP-Referer": YOUR_SITE_URL,
+        "X-Title": YOUR_SITE_NAME,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "messages": [
+          {"role": "system", "content": systemPrompt},
+          {"role": "user", "content": prompt},
+        ],
+      })
+    });
 
+    if (!response.ok) {
+      throw new Error(`OpenRouter API request failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
     let flashcards;
-    if (result && typeof result === 'object' && 'text' in result) {
-      flashcards = JSON.parse(result.text);
-    } else if (typeof result === 'string') {
-      flashcards = JSON.parse(result);
-    } else {
-      throw new Error('Unexpected result format');
+
+    try {
+      const content = result.choices[0].message.content;
+      console.log('Raw API response:', content);
+      flashcards = JSON.parse(content);
+    } catch (parseError) {
+      console.error('Error parsing JSON:', parseError);
+      throw new Error('Failed to parse API response');
     }
 
-    if (!Array.isArray(flashcards) || !flashcards.every(card => card.front && card.back && card.detail && card.strength)) {
-      throw new Error('Invalid flashcard structure');
+    if (!Array.isArray(flashcards)) {
+      console.error('Parsed content is not an array:', flashcards);
+      throw new Error('Invalid flashcard structure: not an array');
     }
 
-    return Response.json({ flashcards });
+    if (flashcards.length !== count) {
+      console.error(`Expected ${count} flashcards, but got ${flashcards.length}`);
+      throw new Error(`Invalid number of flashcards: expected ${count}, got ${flashcards.length}`);
+    }
+
+    const invalidCards = flashcards.filter(card => !card.front || !card.back || !card.detail || !card.strength);
+    if (invalidCards.length > 0) {
+      console.error('Invalid flashcards:', invalidCards);
+      throw new Error(`Invalid flashcard structure: ${invalidCards.length} cards are missing required fields`);
+    }
+
+    return NextResponse.json({ flashcards });
   } catch (error) {
     console.error('Error generating flashcards:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message,
+      details: error.stack,
+      rawResponse: result?.choices?.[0]?.message?.content || 'No raw response available'
+    }, { status: 500 });
   }
 }

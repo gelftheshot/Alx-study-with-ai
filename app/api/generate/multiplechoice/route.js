@@ -1,64 +1,70 @@
-import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
-export const maxDuration = 300; // Set timeout to 5 minutes (300 seconds)
+export const maxDuration = 300;
+
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'http://localhost:3000';
+const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'FlashcardsWithAI';
 
 export async function POST(req) {
   const { prompt, count, difficulty } = await req.json();
-  const systemPrompt = `You are an expert multiple choice question generator. Given a topic, create a concise list of exactly ${count} multiple choice questions with a difficulty level of ${difficulty}% (1% being easiest, 100% being hardest). Each question should:
-   1. Focus on a key concept within the topic.
-   2. Have a clear, unambiguous question.
-   3. Provide four answer options (A, B, C, D), with only one correct answer.
-   4. Be suitable for effective learning and assessment.
-   5. Match the specified difficulty level.
+  const systemPrompt = `Generate ${count} multiple-choice questions on the given topic with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
-   Return exactly ${count} questions as a JSON array of objects, each with 'question', 'correctAnswer', 'A', 'B', 'C', and 'D' properties as strings.
-   Example format: [{"question": "What is the capital of France?", "correctAnswer": "Paris", "A": "London", "B": "Berlin", "C": "Paris", "D": "Madrid"}]`;
+Instructions:
+1. Each question should focus on a key concept within the topic.
+2. Provide four options (A, B, C, D) for each question.
+3. Ensure only one option is correct.
+4. Match the specified difficulty level.
+5. Do not include any text outside of the JSON structure.
+6. Ensure the response is valid JSON and can be parsed directly.
+
+Format your response ONLY as a JSON array of objects with this structure:
+[
+  {
+    "question": "Question text here?",
+    "correctAnswer": "A",
+    "A": "Option A text",
+    "B": "Option B text",
+    "C": "Option C text",
+    "D": "Option D text"
+  }
+]
+
+Generate exactly ${count} questions in this format. Do not include any other text or explanations.`;
 
   try {
-    const result = await Promise.race([
-      generateText({
-        model: google('models/gemini-1.5-pro-latest'),
-        system: systemPrompt,
-        prompt,
-      }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 280000)) // 280 seconds timeout
-    ]);
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "HTTP-Referer": YOUR_SITE_URL,
+        "X-Title": YOUR_SITE_NAME,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "messages": [
+          {"role": "system", "content": systemPrompt},
+          {"role": "user", "content": prompt},
+        ],
+      })
+    });
 
-    let questions;
-    try {
-      if (result && typeof result === 'object' && 'text' in result) {
-        questions = JSON.parse(result.text);
-      } else if (typeof result === 'string') {
-        questions = JSON.parse(result);
-      } else {
-        throw new Error('Unexpected result format');
-      }
-    } catch (parseError) {
-      console.error('Error parsing result:', parseError);
-      console.error('Raw result:', result);
-      throw new Error(`Failed to parse the generated questions: ${parseError.message}`);
+    if (!response.ok) {
+      throw new Error(`OpenRouter API request failed with status ${response.status}`);
     }
 
-    if (!Array.isArray(questions)) {
-      console.error('Generated result is not an array:', questions);
-      throw new Error('Generated result is not an array');
+    const result = await response.json();
+    const questions = JSON.parse(result.choices[0].message.content);
+
+    if (!Array.isArray(questions) || questions.length !== count) {
+      throw new Error('Invalid question format or count');
     }
 
-    const invalidQuestions = questions.filter(q => !q.question || !q.correctAnswer || !q.A || !q.B || !q.C || !q.D);
-    if (invalidQuestions.length > 0) {
-      console.error('Invalid questions:', invalidQuestions);
-      throw new Error(`Invalid question structure for ${invalidQuestions.length} question(s)`);
-    }
-
-    return Response.json({ questions });
+    return NextResponse.json({ questions });
   } catch (error) {
     console.error('Error generating multiple choice questions:', error);
-    return Response.json({ 
-      error: error.message, 
-      details: error.stack,
-      rawResult: error.rawResult || 'No raw result available'
-    }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

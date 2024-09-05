@@ -17,15 +17,29 @@ export async function POST(req) {
 
   const fileContent = await file.text();
 
-  const systemPrompt = `You are an expert multiple choice question generator. Given the content of a PDF file, create a concise list of exactly ${count} multiple choice questions with a difficulty level of ${difficulty}% (1% being easiest, 100% being hardest). Each question should:
-   1. Focus on a key concept within the content.
-   2. Have a clear, unambiguous question.
-   3. Provide four answer options (A, B, C, D), with only one correct answer.
-   4. Be suitable for effective learning and assessment.
-   5. Match the specified difficulty level.
+  const systemPrompt = `Generate ${count} multiple-choice questions based on the given PDF content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
-   Return exactly ${count} questions as a JSON array of objects, each with 'question', 'correctAnswer', 'A', 'B', 'C', and 'D' properties as strings.
-   Example format: [{"question": "What is the capital of France?", "correctAnswer": "C", "A": "London", "B": "Berlin", "C": "Paris", "D": "Madrid"}]`;
+Instructions:
+1. Each question should focus on a key concept within the content.
+2. Provide four options (A, B, C, D) for each question.
+3. Ensure only one option is correct.
+4. Match the specified difficulty level.
+5. Do not include any text outside of the JSON structure.
+6. Ensure the response is valid JSON and can be parsed directly.
+
+Format your response ONLY as a JSON array of objects with this structure:
+[
+  {
+    "question": "Question text here?",
+    "correctAnswer": "A",
+    "A": "Option A text",
+    "B": "Option B text",
+    "C": "Option C text",
+    "D": "Option D text"
+  }
+]
+
+Generate exactly ${count} questions in this format. Do not include any other text or explanations.`;
 
   try {
     const result = await generateText({

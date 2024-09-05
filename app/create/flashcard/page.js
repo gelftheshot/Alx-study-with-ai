@@ -13,7 +13,8 @@ const Createcard = () => {
   const [cardCount, setCardCount] = useState(10);
   const [difficulty, setDifficulty] = useState(50);
   const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const { user } = useUser();
 
@@ -47,71 +48,48 @@ const Createcard = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleGenerateFlashcards = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      let content = topic;
+      let response;
       if (file) {
-        content = await readFileContent(file);
-      }
-      const generatedFlashcards = await fetchQuestions(content, cardCount, difficulty);
-      setFlashcards(generatedFlashcards);
-    } catch (error) {
-      console.error('Error generating flashcards:', error);
-      if (error.message.includes('Resource has been exhausted')) {
-        alert('We\'re experiencing high demand. Please try again in a few minutes.');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('count', cardCount.toString());
+        formData.append('difficulty', difficulty.toString());
+
+        response = await fetch('/api/generatefrompdf/flashcard', {
+          method: 'POST',
+          body: formData,
+        });
       } else {
-        alert(`Error generating flashcards: ${error.message}`);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const readFileContent = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
-  };
-
-  const fetchQuestions = async (content, count, difficulty) => {
-    const maxRetries = 3;
-    const baseDelay = 1000; // 1 second
-
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        const response = await fetch('/api/generate/flashcard', {
+        response = await fetch('/api/generate/flashcard', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt: content, count, difficulty }),
+          body: JSON.stringify({ prompt: topic, count: cardCount, difficulty }),
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          if (response.status === 429) {
-            const delay = baseDelay * Math.pow(2, attempt);
-            console.log(`Rate limited. Retrying in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            continue;
-          }
-          throw new Error(errorData.error || 'Failed to generate flashcards');
-        }
-
-        const data = await response.json();
-        return data.flashcards;
-      } catch (error) {
-        if (attempt === maxRetries - 1) {
-          throw error;
-        }
       }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate flashcards');
+      }
+
+      const data = await response.json();
+      setFlashcards(data.flashcards);
+    } catch (err) {
+      console.error('Error generating flashcards:', err);
+      if (err.message.includes('Resource has been exhausted')) {
+        setError('Were experiencing high demand. Please try again in a few minutes.');
+      } else {
+        setError(`Failed to generate flashcards: ${err.message}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
-    throw new Error('Max retries reached. Failed to generate flashcards.');
   };
 
   return (
@@ -154,10 +132,10 @@ const Createcard = () => {
                   color="primary"
                   fullWidth
                   sx={{ mt: 2 }}
-                  disabled={loading || (!topic && !file)}
-                  onClick={handleSubmit}
+                  disabled={isLoading || (!topic && !file)}
+                  onClick={handleGenerateFlashcards}
                 >
-                  {loading ? 'Generating...' : 'Generate Flashcards'}
+                  {isLoading ? 'Generating...' : 'Generate Flashcards'}
                 </Button>
               </Box>
             </Grid>
