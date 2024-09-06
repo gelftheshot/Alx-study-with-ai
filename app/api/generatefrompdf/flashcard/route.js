@@ -72,7 +72,7 @@ export async function POST(req) {
       throw new Error('Failed to parse API response');
     }
 
-    if (!Array.isArray(flashcards) || flashcards.length !== count) {
+    if (!Array.isArray(flashcards) || flashcards.length !== parseInt(count)) {
       throw new Error(`Invalid flashcard format or count: expected ${count}, got ${flashcards?.length}`);
     }
 
