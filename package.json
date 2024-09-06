@@ -14,7 +14,7 @@
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@google/generative-ai": "^0.17.0",
-    "@langchain/community": "^0.2.28",
+    "@langchain/community": "^0.2.32",
     "@langchain/google-genai": "^0.0.26",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
