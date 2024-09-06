@@ -14,29 +14,29 @@ export async function POST(req) {
     return NextResponse.json({ error: 'No text provided' }, { status: 400 });
   }
 
-  const systemPrompt = `Generate ${count} flashcards based on the given text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
+  const systemPrompt = `Generate ${count} flashcards based ONLY on the provided text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
   Instructions:
-  1. Focus solely on the text content provided, ignoring any PDF-specific information.
-  2. Each flashcard should be about a key concept or fact from the text.
+  1. Use ONLY the information from the text content provided. Do not use any external knowledge.
+  2. Each flashcard must be about a specific fact or concept from the text.
   3. The front should have a clear, thought-provoking question based on the content.
   4. The back should provide a concise, accurate answer derived from the text.
   5. Include a 'detail' field for additional information or context from the text.
   6. Set the 'strength' value to match the specified difficulty level.
-  7. Do not include any text outside of the JSON structure.
-  8. Ensure the response is valid JSON and can be parsed directly.
+  7. Your entire response must be a valid JSON array that can be parsed directly.
+  8. Do not include ANY text outside of the JSON structure.
 
-  Format your response ONLY as a JSON array of objects with this structure:
+  Your response MUST be EXACTLY in this JSON format, with ${count} flashcards:
   [
     {
-      "front": "Question based on the text content?",
+      "front": "Question from text content?",
       "back": "Answer based on the text content",
       "detail": "Additional explanation or context from the text",
       "strength": "${difficulty}"
     }
   ]
 
-  Generate exactly ${count} flashcards in this format. Do not include any other text or explanations.`;
+  Generate exactly ${count} flashcards. Do not add any explanations, comments, or additional text.`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -72,8 +72,15 @@ export async function POST(req) {
       throw new Error('Failed to parse API response');
     }
 
-    if (!Array.isArray(flashcards) || flashcards.length !== parseInt(count)) {
-      throw new Error(`Invalid flashcard format or count: expected ${count}, got ${flashcards?.length}`);
+    // Ensure we have the correct number of flashcards
+    if (Array.isArray(flashcards)) {
+      flashcards = flashcards.slice(0, parseInt(count));
+    } else {
+      throw new Error('Invalid flashcard format: expected an array');
+    }
+
+    if (flashcards.length !== parseInt(count)) {
+      console.warn(`Warning: Generated ${flashcards.length} flashcards instead of ${count}`);
     }
 
     return NextResponse.json({ flashcards });
