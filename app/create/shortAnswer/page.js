@@ -35,9 +35,23 @@ export default function ShortAnswerPage() {
         formData.append('count', questionCount.toString());
         formData.append('difficulty', difficulty.toString());
 
-        response = await fetch('/api/generatefrompdf/shortAnswer', {
+        const uploadResponse = await fetch('/api/processPdf', {
           method: 'POST',
           body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to process PDF');
+        }
+
+        const { text } = await uploadResponse.json();
+
+        response = await fetch('/api/generatefrompdf/shortAnswer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text, count: questionCount, difficulty }),
         });
       } else {
         response = await fetch('/api/generate/shortAnswer', {
@@ -58,11 +72,7 @@ export default function ShortAnswerPage() {
       setQuestions(data.questions);
     } catch (err) {
       console.error('Error generating questions:', err);
-      if (err.message.includes('Resource has been exhausted')) {
-        setError('Were experiencing high demand. Please try again in a few minutes.');
-      } else {
-        setError(`Failed to generate questions: ${err.message}`);
-      }
+      setError(`Failed to generate questions: ${err.message}`);
     } finally {
       setIsLoading(false);
     }

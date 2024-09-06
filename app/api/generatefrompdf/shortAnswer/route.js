@@ -8,16 +8,11 @@ const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'http://localhost:3000';
 const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'FlashcardsWithAI';
 
 export async function POST(req) {
-  const formData = await req.formData();
-  const file = formData.get('file');
-  const count = parseInt(formData.get('count'));
-  const difficulty = parseInt(formData.get('difficulty'));
+  const { text, count, difficulty } = await req.json();
 
-  if (!file) {
-    return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+  if (!text) {
+    return NextResponse.json({ error: 'No text provided' }, { status: 400 });
   }
-
-  const fileContent = await file.text();
 
   const systemPrompt = `Generate ${count} short answer questions based on the given text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
@@ -53,7 +48,7 @@ Generate exactly ${count} questions in this format. Do not include any other tex
         "model": "meta-llama/llama-3.1-8b-instruct:free",
         "messages": [
           {"role": "system", "content": systemPrompt},
-          {"role": "user", "content": fileContent},
+          {"role": "user", "content": text},
         ],
       })
     });
@@ -74,29 +69,13 @@ Generate exactly ${count} questions in this format. Do not include any other tex
       throw new Error('Failed to parse API response');
     }
 
-    if (!Array.isArray(questions)) {
-      console.error('Parsed content is not an array:', questions);
-      throw new Error('Invalid question structure: not an array');
-    }
-
-    if (questions.length !== count) {
-      console.error(`Expected ${count} questions, but got ${questions.length}`);
-      throw new Error(`Invalid number of questions: expected ${count}, got ${questions.length}`);
-    }
-
-    const invalidQuestions = questions.filter(q => !q.question || !q.answer);
-    if (invalidQuestions.length > 0) {
-      console.error('Invalid questions:', invalidQuestions);
-      throw new Error(`Invalid question structure: ${invalidQuestions.length} questions are missing required fields`);
+    if (!Array.isArray(questions) || questions.length !== count) {
+      throw new Error(`Invalid question format or count: expected ${count}, got ${questions?.length}`);
     }
 
     return NextResponse.json({ questions });
   } catch (error) {
     console.error('Error generating short answer questions:', error);
-    return NextResponse.json({ 
-      error: error.message,
-      details: error.stack,
-      rawResponse: result?.choices?.[0]?.message?.content || 'No raw response available'
-    }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -8,41 +8,36 @@ const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'http://localhost:3000';
 const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'FlashcardsWithAI';
 
 export async function POST(req) {
-  const formData = await req.formData();
-  const file = formData.get('file');
-  const count = parseInt(formData.get('count'));
-  const difficulty = parseInt(formData.get('difficulty'));
+  const { text, count, difficulty } = await req.json();
 
-  if (!file) {
-    return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+  if (!text) {
+    return NextResponse.json({ error: 'No text provided' }, { status: 400 });
   }
 
-  const fileContent = await file.text();
+  const systemPrompt = `Generate ${count} multiple-choice questions based ONLY on the provided text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
-  const systemPrompt = `Generate ${count} multiple-choice questions based on the given text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
+  Instructions:
+  1. Use ONLY the information from the text content provided. Do not use any external knowledge.
+  2. Each question must be about a specific fact or concept from the text.
+  3. Provide four options (A, B, C, D) for each question, all based on the text content.
+  4. Ensure only one option is correct.
+  5. Match the specified difficulty level in terms of content complexity.
+  6. Your entire response must be a valid JSON array that can be parsed directly.
+  7. Do not include ANY text outside of the JSON structure.
 
-Instructions:
-1. Focus solely on the text content provided, ignoring any PDF-specific information.
-2. Each question should be about a key concept or fact from the text.
-3. Provide four options (A, B, C, D) for each question, all based on the content.
-4. Ensure only one option is correct.
-5. Match the specified difficulty level in terms of content complexity.
-6. Do not include any text outside of the JSON structure.
-7. Ensure the response is valid JSON and can be parsed directly.
+  Your response MUST be EXACTLY in this JSON format, with ${count} questions:
+  [
+    {
+      "question": "Question from text content?",
+      "correctAnswer": "A",
+      "A": "Option A",
+      "B": "Option B",
+      "C": "Option C",
+      "D": "Option D"
+    }
+  ]
 
-Format your response ONLY as a JSON array of objects with this structure:
-[
-  {
-    "question": "Content-based question here?",
-    "correctAnswer": "A",
-    "A": "Option A text",
-    "B": "Option B text",
-    "C": "Option C text",
-    "D": "Option D text"
-  }
-]
-
-Generate exactly ${count} questions in this format. Do not include any other text or explanations.`;
+  Generate exactly ${count} questions. Do not add any explanations, comments, or additional text.`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -57,7 +52,7 @@ Generate exactly ${count} questions in this format. Do not include any other tex
         "model": "meta-llama/llama-3.1-8b-instruct:free",
         "messages": [
           {"role": "system", "content": systemPrompt},
-          {"role": "user", "content": fileContent},
+          {"role": "user", "content": text},
         ],
       })
     });

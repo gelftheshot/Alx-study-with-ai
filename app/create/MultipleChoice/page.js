@@ -28,34 +28,54 @@ export default function MultipleChoicePage() {
     setIsLoading(true);
     setError(null);
     try {
-      let response;
+      let questionData;
       if (file) {
+        // Process PDF and generate questions
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('count', questionCount.toString());
-        formData.append('difficulty', difficulty.toString());
 
-        response = await fetch('/api/generatefrompdf/multiplechoice', {
+        const uploadResponse = await fetch('/api/processPdf', {
           method: 'POST',
           body: formData,
         });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to process PDF');
+        }
+
+        const { text } = await uploadResponse.json();
+
+        const generateResponse = await fetch('/api/generatefrompdf/multiplechoice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text, count: questionCount, difficulty }),
+        });
+
+        if (!generateResponse.ok) {
+          throw new Error('Failed to generate questions');
+        }
+
+        questionData = await generateResponse.json();
       } else {
-        response = await fetch('/api/generate/multiplechoice', {
+        // Generate questions from topic
+        const response = await fetch('/api/generate/multiplechoice', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ prompt: topic, count: questionCount, difficulty }),
         });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate questions');
+        }
+
+        questionData = await response.json();
       }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate questions');
-      }
-
-      const data = await response.json();
-      setQuestions(data.questions);
+      setQuestions(questionData.questions);
     } catch (err) {
       console.error('Error generating questions:', err);
       if (err.message.includes('Resource has been exhausted')) {
