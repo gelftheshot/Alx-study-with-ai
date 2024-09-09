@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "patch-package" 
+
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.36",
@@ -25,6 +27,7 @@
     "fs": "^0.0.1-security",
     "langchain": "^0.2.16",
     "next": "14.2.5",
+    "patch-package": "^8.0.0",
     "pdf-parse": "^1.1.1",
     "pdf.js-extract": "^0.2.1",
     "react": "^18",

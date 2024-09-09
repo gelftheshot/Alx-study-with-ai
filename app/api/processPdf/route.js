@@ -4,11 +4,7 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
   const formData = await req.formData();

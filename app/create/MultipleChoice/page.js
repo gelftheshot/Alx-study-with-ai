@@ -78,11 +78,7 @@ export default function MultipleChoicePage() {
       setQuestions(questionData.questions);
     } catch (err) {
       console.error('Error generating questions:', err);
-      if (err.message.includes('Resource has been exhausted')) {
-        setError('We\'re experiencing high demand. Please try again in a few minutes.');
-      } else {
-        setError(`Failed to generate questions: ${err.message}`);
-      }
+      setError('Failed to generate questions. Please try again later or with a different input.');
     } finally {
       setIsLoading(false);
     }
