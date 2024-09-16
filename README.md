@@ -1,3 +1,4 @@
+This is an ai made using lamma 3.1 8B that help you to sutdy with short notes and different materials with automatically generated questions
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
