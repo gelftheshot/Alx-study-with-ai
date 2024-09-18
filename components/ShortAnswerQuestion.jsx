@@ -1,32 +1,28 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Paper } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ShortAnswerQuestion = ({ question, correctAnswer }) => {
-  const [userAnswer, setUserAnswer] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+const ShortAnswerQuestion = ({ question, correctAnswer = '', showAnswer, setShowAnswer, userAnswer }) => {
+  const [localUserAnswer, setLocalUserAnswer] = useState(userAnswer || '');
+  const [localSubmitted, setLocalSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  const handleSubmit = () => {
-    const normalizedUserAnswer = userAnswer.trim().toLowerCase();
-    const normalizedCorrectAnswer = correctAnswer.trim().toLowerCase();
-    const isAnswerCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
-    setIsCorrect(isAnswerCorrect);
-    setSubmitted(true);
-  };
+  const isControlled = showAnswer !== undefined && setShowAnswer !== undefined;
+  const currentSubmitted = isControlled ? showAnswer : localSubmitted;
+  const setCurrentSubmitted = isControlled ? setShowAnswer : setLocalSubmitted;
 
-  const handleTryAgain = () => {
-    setUserAnswer('');
-    setSubmitted(false);
-    setIsCorrect(false);
-  };
+  useEffect(() => {
+    setLocalUserAnswer(userAnswer || '');
+  }, [userAnswer]);
 
-  const buttonVariants = {
-    initial: { scale: 1 },
-    hover: { scale: 1.03 },
-    tap: { scale: 0.98 },
-  };
+  useEffect(() => {
+    if (currentSubmitted) {
+      const normalizedUserAnswer = localUserAnswer.trim().toLowerCase();
+      const normalizedCorrectAnswer = correctAnswer.trim().toLowerCase();
+      setIsCorrect(normalizedUserAnswer === normalizedCorrectAnswer);
+    }
+  }, [currentSubmitted, localUserAnswer, correctAnswer]);
 
   return (
     <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
@@ -36,31 +32,13 @@ const ShortAnswerQuestion = ({ question, correctAnswer }) => {
       <TextField
         fullWidth
         variant="outlined"
-        value={userAnswer}
-        onChange={(e) => setUserAnswer(e.target.value)}
-        disabled={submitted}
+        value={localUserAnswer}
+        onChange={(e) => setLocalUserAnswer(e.target.value)}
+        disabled={currentSubmitted}
         sx={{ mb: 2 }}
       />
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <motion.div
-          variants={buttonVariants}
-          initial="initial"
-          whileHover="hover"
-          whileTap="tap"
-        >
-          {!submitted ? (
-            <Button variant="contained" onClick={handleSubmit}>
-              Submit
-            </Button>
-          ) : (
-            <Button variant="outlined" onClick={handleTryAgain}>
-              Try Again
-            </Button>
-          )}
-        </motion.div>
-      </Box>
       <AnimatePresence>
-        {submitted && (
+        {currentSubmitted && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

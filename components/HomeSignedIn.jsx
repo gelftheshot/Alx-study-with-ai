@@ -6,18 +6,18 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import ShortTextIcon from '@mui/icons-material/ShortText';
 import StyleIcon from '@mui/icons-material/Style';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import SchoolIcon from '@mui/icons-material/School';
 
 const options = [
-  { title: 'Multiple Choice', subtitle: 'Generate questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50', action: 'Create Quiz' },
-  { title: 'Short Answer', subtitle: 'Create brief questions', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3', action: 'Generate Questions' },
-  { title: 'Flashcards', subtitle: 'Build your deck', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107', action: 'Create Deck' },
-  { title: 'Ask AI', subtitle: 'Query your files', icon: HelpOutlineIcon, href: '/ask-question', color: '#9C27B0', action: 'Ask a Question' },
-  { title: 'My Sets', subtitle: 'View flashcards', icon: ViewListIcon, href: '/my-flashcards', color: '#FF5722', action: 'View Sets' },
-  { title: 'Progress', subtitle: 'Track learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5', action: 'View Progress' },
-  { title: 'More', subtitle: 'Explore options', icon: MoreHorizIcon, href: '/more-options', color: '#607D8B', action: 'Explore More' },
+  { title: 'Flashcards', subtitle: 'Create and study flashcards', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107', action: 'Create Flashcards' },
+  { title: 'Multiple Choice', subtitle: 'Generate quiz questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50', action: 'Create Quiz' },
+  { title: 'Short Answer', subtitle: 'Practice short answers', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3', action: 'Generate Questions' },
+  { title: 'Study Notes', subtitle: 'Generate study notes', icon: MenuBookIcon, href: '/create/studynotes', color: '#9C27B0', action: 'Create Notes' },
+  { title: 'Ask AI', subtitle: 'Get answers to your questions', icon: HelpOutlineIcon, href: '/ask-question', color: '#FF5722', action: 'Ask a Question' },
+  { title: 'Progress', subtitle: 'Track your learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5', action: 'View Progress' },
+  { title: 'Study Plan', subtitle: 'Create a study plan', icon: SchoolIcon, href: '/study-plan', color: '#607D8B', action: 'Create Plan' },
 ];
 
 export default function HomeSignedIn() {
@@ -27,14 +27,14 @@ export default function HomeSignedIn() {
     <Box sx={{ py: 8, bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
         <Typography variant="h3" gutterBottom sx={{ mb: 6, fontWeight: 'bold', textAlign: 'center', color: 'primary.main' }}>
-          Welcome back, {user.firstName}!
+          Welcome to ALX Study with AI, {user.firstName}!
         </Typography>
         <Typography variant="h5" gutterBottom sx={{ mb: 6, textAlign: 'center', color: 'text.secondary' }}>
-          Ready to boost your learning? Choose an option below:
+          Choose a study tool to get started:
         </Typography>
         <Grid container spacing={4} justifyContent="center">
           {options.map((option, index) => (
-            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+            <Grid item key={index} xs={12} sm={6} md={4}>
               <Paper 
                 elevation={3} 
                 sx={{ 

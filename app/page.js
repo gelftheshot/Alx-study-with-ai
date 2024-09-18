@@ -7,7 +7,7 @@ export default function Home() {
   const { isSignedIn, isLoaded } = useUser();
 
   if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <div>Loading ALX Study with AI...</div>;
   }
 
   return isSignedIn ? <HomeSignedIn /> : <HomeSignedOut />;

@@ -14,15 +14,15 @@ export default function Footer() {
     >
       <Container maxWidth="lg">
         <Typography variant="h6" align="center" gutterBottom>
-          FlashCard AI
+          ALX Study with AI
         </Typography>
         <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
-          Revolutionize your learning with AI-powered flashcards
+          Empowering your learning journey with AI-powered study tools
         </Typography>
         <Typography variant="body2" color="text.secondary" align="center">
           {'Copyright © '}
-          <Link color="inherit" href="https://yourwebsite.com/">
-            FlashCard AI
+          <Link color="inherit" href="https://alxstudywithai.com/">
+            ALX Study with AI
           </Link>{' '}
           {new Date().getFullYear()}
           {'.'}

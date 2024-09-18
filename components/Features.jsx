@@ -1,24 +1,24 @@
 import { Box, Container, Grid, Typography, Card, CardContent, Avatar } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
-import SpeedIcon from '@mui/icons-material/Speed';
+import PersonIcon from '@mui/icons-material/Speed';
 import DevicesIcon from '@mui/icons-material/Devices';
 
 const features = [
   {
-    title: 'AI-Powered Creation',
-    description: 'Instantly generate well-structured flashcards from any text.',
+    title: 'AI-Powered Study Tools',
+    description: 'Generate flashcards, quizzes, and study notes with advanced AI technology.',
     icon: <SchoolIcon sx={{ fontSize: 40 }} />,
     color: '#3f51b5', // primary.main
   },
   {
-    title: 'Fast and Efficient',
-    description: 'Create hundreds of flashcards in seconds, saving you time and effort.',
-    icon: <SpeedIcon sx={{ fontSize: 40 }} />,
+    title: 'Personalized Learning',
+    description: 'Adaptive study plans tailored to your learning style and progress.',
+    icon: <PersonIcon sx={{ fontSize: 40 }} />,
     color: '#f50057', // secondary.main
   },
   {
-    title: 'Study Anywhere',
-    description: 'Access your flashcards on any device, anytime, anywhere.',
+    title: 'Cross-Platform Access',
+    description: 'Study anytime, anywhere with seamless synchronization across all your devices.',
     icon: <DevicesIcon sx={{ fontSize: 40 }} />,
     color: '#757de8', // primary.light
   },

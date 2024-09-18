@@ -4,19 +4,19 @@ const testimonials = [
   {
     name: 'Sarah L.',
     role: 'Medical Student',
-    content: 'FlashCard AI has revolutionized my study routine. I can quickly create flashcards for complex medical terms and concepts.',
+    content: 'ALX Study with AI has revolutionized my study routine. I can quickly create flashcards, quizzes, and study notes for complex medical concepts.',
     initials: 'SL',
   },
   {
     name: 'Mike T.',
     role: 'Language Learner',
-    content: 'Learning a new language has never been easier. The AI-generated flashcards are spot-on and save me hours of manual work.',
+    content: 'Learning a new language has never been easier. The AI-generated study materials are spot-on and save me hours of manual work.',
     initials: 'MT',
   },
   {
     name: 'Emily R.',
     role: 'High School Teacher',
-    content: 'I use FlashCard AI to create study materials for my students. It&apos;s a game-changer for both me and my class!',
+    content: 'I use ALX Study with AI to create study materials for my students. It\'s a game-changer for both me and my class!',
     initials: 'ER',
   },
 ];

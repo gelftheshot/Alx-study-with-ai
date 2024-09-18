@@ -1,26 +1,33 @@
 import { Box, Container, Typography, Grid, Paper, Icon } from '@mui/material';
 import CreateIcon from '@mui/icons-material/Create';
 import SchoolIcon from '@mui/icons-material/School';
+import AutorenewIcon  from '@mui/icons-material/School';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 const steps = [
   {
-    title: 'Create',
-    description: 'Input your study material or choose a topic',
+    title: 'Input',
+    description: 'Enter your study material or choose a topic',
     icon: CreateIcon,
     color: '#3f51b5', // primary.main
   },
   {
-    title: 'Learn',
-    description: 'Review AI-generated flashcards',
-    icon: SchoolIcon,
+    title: 'Generate',
+    description: 'Create flashcards, quizzes, or study notes with AI',
+    icon: AutorenewIcon,
     color: '#f50057', // secondary.main
   },
   {
-    title: 'Improve',
-    description: 'Track progress and master your subject',
-    icon: TrendingUpIcon,
+    title: 'Study',
+    description: 'Review and practice with interactive tools',
+    icon: SchoolIcon,
     color: '#757de8', // primary.light
+  },
+  {
+    title: 'Track',
+    description: 'Monitor your progress and improve',
+    icon: TrendingUpIcon,
+    color: '#4caf50', // success.main
   },
 ];
 

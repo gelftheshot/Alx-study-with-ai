@@ -9,6 +9,10 @@ export default function HomeSignedOut() {
   return (
     <Box>
       <Hero />
+      <Features />
+      <HowItWorks />
+      <Testimonials />
+      <CallToAction />
     </Box>
   );
 }

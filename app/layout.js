@@ -9,8 +9,8 @@ import Footer from '../components/Footer';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "FlashCard Pro - Create Flashcards Easily",
-  description: "Turn your text into flashcards with our AI-powered tool",
+  title: "ALX Study with AI - Revolutionize Your Learning",
+  description: "Master any subject with AI-powered study tools including flashcards, quizzes, and study notes.",
   icons: {
     icon: './favicon.ico',
   },

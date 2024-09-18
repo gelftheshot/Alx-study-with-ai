@@ -36,13 +36,8 @@ const cardFaceStyle = {
   overflow: "hidden",
 };
 
-const Flashcard = ({ question, answer, detail, strength, isFlipped: propIsFlipped, setIsFlipped: propSetIsFlipped }) => {
-  const [localIsFlipped, setLocalIsFlipped] = useState(false);
+const Flashcard = ({ question, answer, detail, strength, isFlipped, setIsFlipped }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-
-  const isControlled = propIsFlipped !== undefined && propSetIsFlipped !== undefined;
-  const isFlipped = isControlled ? propIsFlipped : localIsFlipped;
-  const setIsFlipped = isControlled ? propSetIsFlipped : setLocalIsFlipped;
 
   const handleClick = () => {
     setIsFlipped(!isFlipped);
