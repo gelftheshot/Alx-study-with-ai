@@ -104,17 +104,22 @@ export default function Hero() {
     const questionInterval = setInterval(() => {
       setCurrentQuestionTypeIndex((prevType) => (prevType + 1) % questionSequence.length);
       setCurrentQuestionIndex(0);
-    }, 15000); // Change question type every 15 seconds
+      resetQuestionState();
+    }, 5000);
 
     return () => clearInterval(questionInterval);
   }, [questionSequence.length]);
 
-  useEffect(() => {
-    const currentQuestion = questionSequence[currentQuestionTypeIndex];
+  const resetQuestionState = () => {
     setSelectedOption(null);
     setIsFlashcardFlipped(false);
     setShowShortAnswer(false);
     setShortAnswerText('');
+  };
+
+  useEffect(() => {
+    resetQuestionState();
+    const currentQuestion = questionSequence[currentQuestionTypeIndex];
 
     const timer = setTimeout(() => {
       if (currentQuestion.type === 'multipleChoice') {
@@ -124,22 +129,25 @@ export default function Hero() {
       } else if (currentQuestion.type === 'flashcard') {
         setIsFlashcardFlipped(true);
       } else if (currentQuestion.type === 'shortAnswer') {
-        const answer = currentQuestion.data[currentQuestionIndex].answer;
-        let index = 0;
-        const typingInterval = setInterval(() => {
-          if (index < answer.length) {
-            setShortAnswerText(prev => prev + answer[index]);
-            index++;
-          } else {
-            clearInterval(typingInterval);
-            setTimeout(() => setShowShortAnswer(true), 1000);
-          }
-        }, 100); // Adjust typing speed here
+        typeAnswer(currentQuestion.data[currentQuestionIndex].answer);
       }
     }, 2000);
 
     return () => clearTimeout(timer);
   }, [currentQuestionIndex, currentQuestionTypeIndex, questionSequence]);
+
+  const typeAnswer = (answer) => {
+    let index = 0;
+    const typingInterval = setInterval(() => {
+      if (index < answer.length) {
+        setShortAnswerText(prev => prev + answer[index]);
+        index++;
+      } else {
+        clearInterval(typingInterval);
+        setTimeout(() => setShowShortAnswer(true), 1000);
+      }
+    }, 100);
+  };
 
   const renderCurrentQuestion = () => {
     const currentQuestion = questionSequence[currentQuestionTypeIndex];
