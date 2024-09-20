@@ -86,20 +86,8 @@ const AskAI = () => {
   };
 
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      mx: { xs: 2, sm: 4, md: 6, lg: 8 }, // Add horizontal margin
-      my: 2 // Add a small vertical margin
-    }}>
-      <Paper elevation={3} sx={{ 
-        flexGrow: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        overflow: 'hidden', 
-        borderRadius: '12px'
-      }}>
+    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', p: 2 }}>
+      <Paper elevation={3} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px' }}>
         <List sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
           {messages.map((message, index) => (
             <ListItem key={index} sx={{ flexDirection: 'column', alignItems: message.role === 'user' ? 'flex-end' : 'flex-start' }}>
