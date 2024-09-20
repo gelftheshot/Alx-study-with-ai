@@ -3,28 +3,20 @@ import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const MultipleChoiceQuestion = ({ question, options, correctAnswer, selectedOption, setSelectedOption }) => {
-  const [localSelectedAnswer, setLocalSelectedAnswer] = useState(null);
+const MultipleChoiceQuestion = ({ question, options, correctAnswer }) => {
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
 
-  const isControlled = selectedOption !== undefined && setSelectedOption !== undefined;
-  const currentSelectedAnswer = isControlled ? selectedOption : localSelectedAnswer;
-  const setCurrentSelectedAnswer = isControlled ? setSelectedOption : setLocalSelectedAnswer;
-
-  useEffect(() => {
-    if (currentSelectedAnswer) {
-      const selectedIndex = currentSelectedAnswer.charCodeAt(0) - 65;
-      setIsCorrect(options[selectedIndex] === correctAnswer);
-    }
-  }, [currentSelectedAnswer, options, correctAnswer]);
+  console.log('Question props:', { question, options, correctAnswer });
 
   const handleAnswerClick = (answer, index) => {
-    const selectedLetter = String.fromCharCode(65 + index);
-    setCurrentSelectedAnswer(selectedLetter);
+    const selectedLetter = String.fromCharCode(65 + index); // Convert index to letter (A, B, C, D)
+    setSelectedAnswer(selectedLetter);
+    setIsCorrect(selectedLetter === correctAnswer);
   };
 
   const handleTryAgain = () => {
-    setCurrentSelectedAnswer(null);
+    setSelectedAnswer(null);
     setIsCorrect(null);
   };
 
@@ -52,21 +44,20 @@ const MultipleChoiceQuestion = ({ question, options, correctAnswer, selectedOpti
                 fullWidth
                 variant="outlined"
                 onClick={() => handleAnswerClick(option, index)}
-                disabled={currentSelectedAnswer !== null && !isControlled}
-                data-option-index={index}
+                disabled={selectedAnswer !== null}
                 sx={{
                   justifyContent: 'flex-start',
                   py: 0.5,
                   textTransform: 'none',
                   fontWeight: 'normal',
-                  bgcolor: currentSelectedAnswer === String.fromCharCode(65 + index)
+                  bgcolor: selectedAnswer === String.fromCharCode(65 + index)
                     ? isCorrect
                       ? '#4caf50'
                       : '#f44336'
                     : 'inherit',
-                  color: currentSelectedAnswer === String.fromCharCode(65 + index) ? 'white' : 'inherit',
+                  color: selectedAnswer === String.fromCharCode(65 + index) ? 'white' : 'inherit',
                   '&:hover': {
-                    bgcolor: currentSelectedAnswer === String.fromCharCode(65 + index)
+                    bgcolor: selectedAnswer === String.fromCharCode(65 + index)
                       ? isCorrect
                         ? '#45a049'
                         : '#d32f2f'
@@ -83,7 +74,7 @@ const MultipleChoiceQuestion = ({ question, options, correctAnswer, selectedOpti
         ))}
       </Grid>
       <AnimatePresence>
-        {currentSelectedAnswer && (
+        {selectedAnswer && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

@@ -7,27 +7,6 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const YOUR_SITE_URL = process.env.YOUR_SITE_URL || 'http://localhost:3000';
 const YOUR_SITE_NAME = process.env.YOUR_SITE_NAME || 'FlashcardsWithAI';
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
-
-async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
-    }
-    return response;
-  } catch (error) {
-    if (retries > 0) {
-      console.log(`Retrying... Attempts left: ${retries - 1}`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-      return fetchWithRetry(url, options, retries - 1);
-    }
-    throw error;
-  }
-}
-
 export async function POST(req) {
   const { text, count, difficulty } = await req.json();
 
@@ -35,18 +14,18 @@ export async function POST(req) {
     return NextResponse.json({ error: 'No text provided' }, { status: 400 });
   }
 
-  const systemPrompt = `Generate ${count} multiple choice questions based on the given text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
+  const systemPrompt = `Generate ${count} multiple choice questions based ONLY on the provided text content with a difficulty of ${difficulty}% (1% easiest, 100% hardest).
 
   Instructions:
-  1. Focus solely on the text content provided, ignoring any PDF-specific information.
-  2. Each question should be about a key point or fact from the text.
+  1. Use ONLY the information from the text content provided. Do not use any external knowledge.
+  2. Each question must be about a specific fact or concept from the text.
   3. Provide four options (A, B, C, D) for each question, with only one correct answer.
   4. Ensure the correct answer is clearly indicated.
   5. Match the specified difficulty level in terms of content complexity.
-  6. Do not include any text outside of the JSON structure.
-  7. Ensure the response is valid JSON and can be parsed directly.
+  6. Your entire response must be a valid JSON array that can be parsed directly.
+  7. Do not include ANY text outside of the JSON structure.
 
-  Format your response ONLY as a JSON array of objects with this structure:
+  Your response MUST be EXACTLY in this JSON format, with ${count} questions:
   [
     {
       "question": "Content-based question here?",
@@ -58,10 +37,10 @@ export async function POST(req) {
     }
   ]
 
-  Generate exactly ${count} questions in this format. Do not include any other text or explanations.`;
+  Generate exactly ${count} questions. Do not add any explanations, comments, or additional text.`;
 
   try {
-    const response = await fetchWithRetry("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
@@ -78,28 +57,31 @@ export async function POST(req) {
       })
     });
 
-    const result = await response.json();
-    console.log('Raw API response:', JSON.stringify(result));
-
-    if (!result.choices || !result.choices[0] || !result.choices[0].message || !result.choices[0].message.content) {
-      throw new Error('Unexpected API response structure');
+    if (!response.ok) {
+      throw new Error(`OpenRouter API request failed with status ${response.status}`);
     }
 
-    const content = result.choices[0].message.content;
-    console.log('Content from API:', content);
-
+    const result = await response.json();
     let questions;
+
     try {
+      const content = result.choices[0].message.content;
+      console.log('Raw API response:', content);
       questions = JSON.parse(content);
     } catch (parseError) {
       console.error('Error parsing JSON:', parseError);
-      console.log('Raw content:', content);
-      throw new Error('Failed to parse API response as JSON');
+      throw new Error('Failed to parse API response');
     }
 
-    if (!Array.isArray(questions) || questions.length !== parseInt(count)) {
-      console.error('Invalid questions structure:', questions);
-      throw new Error(`Invalid question format or count: expected ${count}, got ${questions?.length}`);
+    // Ensure we have the correct number of questions
+    if (Array.isArray(questions)) {
+      questions = questions.slice(0, parseInt(count));
+    } else {
+      throw new Error('Invalid question format: expected an array');
+    }
+
+    if (questions.length !== parseInt(count)) {
+      console.warn(`Warning: Generated ${questions.length} questions instead of ${count}`);
     }
 
     return NextResponse.json({ questions });
@@ -108,5 +90,4 @@ export async function POST(req) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
 

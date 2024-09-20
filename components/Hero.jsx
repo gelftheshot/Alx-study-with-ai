@@ -123,9 +123,9 @@ export default function Hero() {
 
     const timer = setTimeout(() => {
       if (currentQuestion.type === 'multipleChoice') {
-        const correctIndex = currentQuestion.data[currentQuestionIndex].options.indexOf(currentQuestion.data[currentQuestionIndex].correctAnswer);
-        const randomIndex = Math.random() < 0.5 ? correctIndex : (correctIndex + 1) % 4;
-        setSelectedOption(String.fromCharCode(65 + randomIndex));
+        const correctAnswer = currentQuestion.data[currentQuestionIndex].correctAnswer;
+        const correctIndex = currentQuestion.data[currentQuestionIndex].options.indexOf(correctAnswer);
+        setSelectedOption(String.fromCharCode(65 + correctIndex));
       } else if (currentQuestion.type === 'flashcard') {
         setIsFlashcardFlipped(true);
       } else if (currentQuestion.type === 'shortAnswer') {
