@@ -12,6 +12,13 @@ const ShortAnswerQuestion = ({ question, correctAnswer = '', showAnswer, setShow
   const currentSubmitted = isControlled ? showAnswer : localSubmitted;
   const setCurrentSubmitted = isControlled ? setShowAnswer : setLocalSubmitted;
 
+  const handleSubmit = () => {
+    setCurrentSubmitted(true);
+    const normalizedUserAnswer = localUserAnswer.trim().toLowerCase();
+    const normalizedCorrectAnswer = correctAnswer.trim().toLowerCase();
+    setIsCorrect(normalizedUserAnswer === normalizedCorrectAnswer);
+  };
+
   useEffect(() => {
     setLocalUserAnswer(userAnswer || '');
   }, [userAnswer]);

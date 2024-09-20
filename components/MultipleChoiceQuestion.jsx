@@ -24,7 +24,7 @@ const MultipleChoiceQuestion = ({ question, options, correctAnswer, selectedOpti
   };
 
   const handleTryAgain = () => {
-    setSelectedAnswer(null);
+    setCurrentSelectedAnswer(null);
     setIsCorrect(null);
   };
 
