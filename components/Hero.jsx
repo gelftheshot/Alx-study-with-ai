@@ -3,35 +3,34 @@ import { useState, useEffect, useMemo } from 'react';
 import { Box, Button, Container, Typography, Grid } from '@mui/material';
 import Link from 'next/link';
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import Flashcard from './flashcard';
-import MultipleChoiceQuestion from './MultipleChoiceQuestion';
-import ShortAnswerQuestion from './ShortAnswerQuestion';
+import Flashcard from './flashcardExample';
+import MultipleChoiceQuestion from './MultipleChoiceExample';
+import ShortAnswerQuestion from './ShortAnswerExample';
 
 const flashcardExamples = [
   {
     question: "What's the capital of France?",
     answer: "Paris",
-    detail: "Paris is the capital and most populous city of France."
+    detail: "Paris is the capital and most populous city of France.",
+    strength: 85
   },
   {
-    question: "Who wrote 'Romeo and Juliet'?",
-    answer: "William Shakespeare",
-    detail: "William Shakespeare was an English playwright, poet, and actor."
+    question: "Who wrote 'To Kill a Mockingbird'?",
+    answer: "Harper Lee",
+    detail: "Harper Lee was an American novelist best known for this Pulitzer Prize-winning novel.",
+    strength: 70
   },
   {
-    question: "What's the largest planet in our solar system?",
-    answer: "Jupiter",
-    detail: "Jupiter is the fifth planet from the Sun and the largest in the Solar System."
+    question: "What is the largest ocean on Earth?",
+    answer: "Pacific Ocean",
+    detail: "The Pacific Ocean covers an area of about 63 million square miles.",
+    strength: 90
   },
   {
-    question: "What is the chemical symbol for water?",
-    answer: "H2O",
-    detail: "H2O represents two hydrogen atoms and one oxygen atom."
-  },
-  {
-    question: "Who painted the Mona Lisa?",
-    answer: "Leonardo da Vinci",
-    detail: "Leonardo da Vinci was an Italian polymath of the Renaissance period."
+    question: "In what year did World War II end?",
+    answer: "1945",
+    detail: "World War II ended with the surrender of Japan in August 1945.",
+    strength: 80
   }
 ];
 
@@ -47,19 +46,14 @@ const multipleChoiceExamples = [
     correctAnswer: "Au"
   },
   {
-    question: "Which of these is not a primary color?",
-    options: ["Red", "Blue", "Green", "Yellow"],
-    correctAnswer: "Green"
+    question: "Which of these is not a type of renewable energy?",
+    options: ["Solar", "Wind", "Nuclear", "Hydroelectric"],
+    correctAnswer: "Nuclear"
   },
   {
-    question: "What is the largest organ in the human body?",
-    options: ["Brain", "Liver", "Skin", "Heart"],
-    correctAnswer: "Skin"
-  },
-  {
-    question: "Which country is home to the kangaroo?",
-    options: ["New Zealand", "South Africa", "Australia", "Brazil"],
-    correctAnswer: "Australia"
+    question: "Who painted 'The Starry Night'?",
+    options: ["Pablo Picasso", "Claude Monet", "Vincent van Gogh", "Leonardo da Vinci"],
+    correctAnswer: "Vincent van Gogh"
   }
 ];
 
@@ -69,8 +63,8 @@ const shortAnswerExamples = [
     answer: "Skin"
   },
   {
-    question: "Who painted the Mona Lisa?",
-    answer: "Leonardo da Vinci"
+    question: "Who wrote 'Romeo and Juliet'?",
+    answer: "William Shakespeare"
   },
   {
     question: "What is the capital of Japan?",
@@ -79,16 +73,11 @@ const shortAnswerExamples = [
   {
     question: "What is the chemical symbol for oxygen?",
     answer: "O"
-  },
-  {
-    question: "In which year did World War II end?",
-    answer: "1945"
   }
 ];
 
 export default function Hero() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [currentQuestionTypeIndex, setCurrentQuestionTypeIndex] = useState(0);
   const [isFlashcardFlipped, setIsFlashcardFlipped] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [showShortAnswer, setShowShortAnswer] = useState(false);
@@ -98,14 +87,15 @@ export default function Hero() {
     { type: 'multipleChoice', data: multipleChoiceExamples },
     { type: 'flashcard', data: flashcardExamples },
     { type: 'shortAnswer', data: shortAnswerExamples },
+    { type: 'multipleChoice', data: multipleChoiceExamples },
+    { type: 'flashcard', data: flashcardExamples },
   ], []);
 
   useEffect(() => {
     const questionInterval = setInterval(() => {
-      setCurrentQuestionTypeIndex((prevType) => (prevType + 1) % questionSequence.length);
-      setCurrentQuestionIndex(0);
+      setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % questionSequence.length);
       resetQuestionState();
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(questionInterval);
   }, [questionSequence.length]);
@@ -119,22 +109,22 @@ export default function Hero() {
 
   useEffect(() => {
     resetQuestionState();
-    const currentQuestion = questionSequence[currentQuestionTypeIndex];
+    const currentQuestion = questionSequence[currentQuestionIndex];
 
     const timer = setTimeout(() => {
       if (currentQuestion.type === 'multipleChoice') {
-        const correctAnswer = currentQuestion.data[currentQuestionIndex].correctAnswer;
-        const correctIndex = currentQuestion.data[currentQuestionIndex].options.indexOf(correctAnswer);
+        const correctAnswer = currentQuestion.data[currentQuestionIndex % currentQuestion.data.length].correctAnswer;
+        const correctIndex = currentQuestion.data[currentQuestionIndex % currentQuestion.data.length].options.indexOf(correctAnswer);
         setSelectedOption(String.fromCharCode(65 + correctIndex));
       } else if (currentQuestion.type === 'flashcard') {
         setIsFlashcardFlipped(true);
       } else if (currentQuestion.type === 'shortAnswer') {
-        typeAnswer(currentQuestion.data[currentQuestionIndex].answer);
+        typeAnswer(currentQuestion.data[currentQuestionIndex % currentQuestion.data.length].answer);
       }
-    }, 2000);
+    }, 4000);
 
     return () => clearTimeout(timer);
-  }, [currentQuestionIndex, currentQuestionTypeIndex, questionSequence]);
+  }, [currentQuestionIndex, questionSequence]);
 
   const typeAnswer = (answer) => {
     let index = 0;
@@ -150,17 +140,18 @@ export default function Hero() {
   };
 
   const renderCurrentQuestion = () => {
-    const currentQuestion = questionSequence[currentQuestionTypeIndex];
-    const key = `${currentQuestion.type}-${currentQuestionIndex}-${currentQuestionTypeIndex}`;
+    const currentQuestion = questionSequence[currentQuestionIndex];
+    const dataIndex = currentQuestionIndex % currentQuestion.data.length;
+    const key = `${currentQuestion.type}-${dataIndex}-${currentQuestionIndex}`;
 
     switch (currentQuestion.type) {
       case 'multipleChoice':
         return (
           <MultipleChoiceQuestion
             key={key}
-            question={currentQuestion.data[currentQuestionIndex].question}
-            options={currentQuestion.data[currentQuestionIndex].options}
-            correctAnswer={currentQuestion.data[currentQuestionIndex].correctAnswer}
+            question={currentQuestion.data[dataIndex].question}
+            options={currentQuestion.data[dataIndex].options}
+            correctAnswer={currentQuestion.data[dataIndex].correctAnswer}
             selectedOption={selectedOption}
             setSelectedOption={setSelectedOption}
           />
@@ -169,9 +160,10 @@ export default function Hero() {
         return (
           <Flashcard
             key={key}
-            question={currentQuestion.data[currentQuestionIndex].question}
-            answer={currentQuestion.data[currentQuestionIndex].answer}
-            detail={currentQuestion.data[currentQuestionIndex].detail}
+            question={currentQuestion.data[dataIndex].question}
+            answer={currentQuestion.data[dataIndex].answer}
+            detail={currentQuestion.data[dataIndex].detail}
+            strength={currentQuestion.data[dataIndex].strength}
             isFlipped={isFlashcardFlipped}
             setIsFlipped={setIsFlashcardFlipped}
           />
@@ -180,8 +172,8 @@ export default function Hero() {
         return (
           <ShortAnswerQuestion
             key={key}
-            question={currentQuestion.data[currentQuestionIndex].question}
-            correctAnswer={currentQuestion.data[currentQuestionIndex].answer}
+            question={currentQuestion.data[dataIndex].question}
+            correctAnswer={currentQuestion.data[dataIndex].answer}
             showAnswer={showShortAnswer}
             setShowAnswer={setShowShortAnswer}
             userAnswer={shortAnswerText}
