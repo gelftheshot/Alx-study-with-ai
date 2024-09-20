@@ -1,58 +1,61 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Box, TextField, Button, Typography, Paper, List, ListItem, ListItemText, Avatar, IconButton, Chip } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useState, useRef, useEffect } from 'react';
+import { Box, TextField, Button, Typography, Paper, List, ListItem, ListItemText, Avatar, IconButton } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
-import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import PersonIcon from '@mui/icons-material/Person';
+import { useTheme } from '../../components/ThemeProvider';
+import { keyframes } from '@mui/system';
+
+const dotAnimation = keyframes`
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+`;
+
+const AnimatedDots = () => (
+  <Typography
+    component="span"
+    sx={{
+      '&::after': {
+        content: "''",
+        animation: `${dotAnimation} 1s infinite`,
+        display: 'inline-block',
+        width: '1em',
+        textAlign: 'left',
+      },
+    }}
+  />
+);
 
 const AskAI = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [thinkingDots, setThinkingDots] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
   const { user } = useUser();
   const messagesEndRef = useRef(null);
+  const { darkMode } = useTheme();
 
-  const theme = createTheme({
-    palette: {
-      mode: darkMode ? 'dark' : 'light',
-    },
-  });
-
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  };
 
   useEffect(() => {
-    const timer = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timer);
-  }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    let dotsInterval;
-    if (isLoading) {
-      dotsInterval = setInterval(() => {
-        setThinkingDots(dots => (dots.length < 3 ? dots + '.' : ''));
-      }, 500);
-    }
-    return () => clearInterval(dotsInterval);
-  }, [isLoading]);
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input, timestamp: new Date().toISOString() };
-    setMessages(prev => [...prev, userMessage, { role: 'thinking', content: 'Thinking', timestamp: new Date().toISOString() }]);
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
+    // Scroll to bottom immediately after adding user message
+    scrollToBottom();
 
     try {
       const response = await fetch('/api/ask-ai', {
@@ -62,119 +65,117 @@ const AskAI = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get response from AI');
+        throw new Error('Failed to get response from AI');
       }
 
       const data = await response.json();
-      const aiMessage = { role: 'ai', content: data.response, timestamp: new Date().toISOString() };
-      setMessages(prev => [...prev.slice(0, -1), aiMessage]);
+      const aiMessage = { role: 'ai', content: data.response };
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Scroll to bottom after adding AI response
+      scrollToBottom();
     } catch (error) {
       console.error('Error asking AI:', error);
-      let errorMessage = 'Sorry, I encountered an error. Please try again.';
-      if (error.message.includes('timed out')) {
-        errorMessage = 'The request timed out. Please try again.';
-      }
-      setMessages(prev => [...prev.slice(0, -1), { role: 'error', content: errorMessage, timestamp: new Date().toISOString() }]);
+      setMessages(prev => [...prev, { role: 'error', content: 'Sorry, I encountered an error. Please try again.' }]);
+      
+      // Scroll to bottom after adding error message
+      scrollToBottom();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleReaction = (index, reaction) => {
-    setMessages(prev => prev.map((msg, i) => 
-      i === index ? { ...msg, reaction } : msg
-    ));
-  };
-
-  const suggestedQuestions = [
-    "What's the weather like today?",
-    "Tell me a joke",
-    "What's the latest news?",
-  ];
-
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default', color: 'text.primary' }}>
-        <Paper elevation={3} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', m: 2 }}>
-          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="h6">AI Assistant</Typography>
-            <IconButton onClick={() => setDarkMode(!darkMode)} color="inherit">
-              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-          </Box>
-          <List sx={{ flexGrow: 1, overflow: 'auto', p: 2, height: 'calc(100vh - 200px)' }}>
-            {messages.length === 0 && (
-              <Box sx={{ textAlign: 'center', mt: 4 }}>
-                <Typography variant="h5" gutterBottom>Welcome to AI Assistant!</Typography>
-                <Typography variant="body1" gutterBottom>Ask me anything or try one of these:</Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 1, mt: 2 }}>
-                  {suggestedQuestions.map((question, index) => (
-                    <Chip
-                      key={index}
-                      label={question}
-                      onClick={() => setInput(question)}
-                      sx={{ m: 0.5 }}
-                    />
-                  ))}
-                </Box>
+    <Box sx={{ 
+      height: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column',
+      mx: { xs: 2, sm: 4, md: 6, lg: 8 }, // Add horizontal margin
+      my: 2 // Add a small vertical margin
+    }}>
+      <Paper elevation={3} sx={{ 
+        flexGrow: 1, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        overflow: 'hidden', 
+        borderRadius: '12px'
+      }}>
+        <List sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
+          {messages.map((message, index) => (
+            <ListItem key={index} sx={{ flexDirection: 'column', alignItems: message.role === 'user' ? 'flex-end' : 'flex-start' }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 1 }}>
+                {message.role !== 'user' && (
+                  <Avatar sx={{ bgcolor: 'primary.main', mr: 1 }}>
+                    <SmartToyIcon />
+                  </Avatar>
+                )}
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2, 
+                    maxWidth: '70%', 
+                    bgcolor: message.role === 'user' ? 'primary.main' : 'background.paper',
+                    color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                    borderRadius: message.role === 'user' ? '20px 20px 0 20px' : '20px 20px 20px 0',
+                  }}
+                >
+                  <Typography>{message.content}</Typography>
+                </Paper>
+                {message.role === 'user' && (
+                  <Avatar sx={{ bgcolor: 'secondary.main', ml: 1 }}>
+                    <PersonIcon />
+                  </Avatar>
+                )}
               </Box>
-            )}
-            {messages.map((message, index) => (
-              <ListItem key={index} sx={{ flexDirection: 'column', alignItems: message.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 1, maxWidth: '70%' }}>
-                  {message.role !== 'user' && (
-                    <Avatar sx={{ bgcolor: 'primary.main', mr: 1 }}>
-                      <SmartToyIcon />
-                    </Avatar>
-                  )}
-                  <Paper 
-                    elevation={1} 
-                    sx={{ 
-                      p: 2, 
-                      bgcolor: message.role === 'user' ? 'primary.main' : message.role === 'thinking' ? 'grey.300' : 'background.paper',
-                      color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
-                      borderRadius: message.role === 'user' ? '20px 20px 0 20px' : '20px 20px 20px 0',
-                    }}
-                  >
-                    <ListItemText 
-                      primary={message.role === 'thinking' ? `${message.content}${thinkingDots}` : message.content}
-                      secondary={new Date(message.timestamp).toLocaleTimeString()}
-                    />
-                  </Paper>
-                  {message.role === 'user' && (
-                    <Avatar sx={{ bgcolor: 'secondary.main', ml: 1 }}>
-                      <PersonIcon />
-                    </Avatar>
-                  )}
-                </Box>
-              </ListItem>
-            ))}
-            <div ref={messagesEndRef} />
-          </List>
-          <Box component="form" onSubmit={handleSendMessage} sx={{ display: 'flex', alignItems: 'center', p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Ask your question here..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={isLoading}
-              sx={{ mr: 1 }}
-            />
-            <Button 
-              type="submit" 
-              variant="contained" 
-              endIcon={<SendIcon />}
-              disabled={isLoading || !input.trim()}
-              sx={{ height: 56, width: 100 }}
-            >
-              {isLoading ? 'Sending' : 'Send'}
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
-    </ThemeProvider>
+            </ListItem>
+          ))}
+          {isLoading && (
+            <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Avatar sx={{ bgcolor: 'primary.main', mr: 1 }}>
+                  <SmartToyIcon />
+                </Avatar>
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2, 
+                    bgcolor: 'background.paper',
+                    borderRadius: '20px 20px 20px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography>
+                    Thinking<AnimatedDots />
+                  </Typography>
+                </Paper>
+              </Box>
+            </ListItem>
+          )}
+          <div ref={messagesEndRef} />
+        </List>
+        <Box component="form" onSubmit={handleSendMessage} sx={{ display: 'flex', alignItems: 'center', p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Ask your question here..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading}
+            sx={{ mr: 1 }}
+          />
+          <Button 
+            type="submit" 
+            variant="contained" 
+            endIcon={<SendIcon />}
+            disabled={isLoading || !input.trim()}
+            sx={{ height: 56, width: 100 }}
+          >
+            {isLoading ? 'Sending' : 'Send'}
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

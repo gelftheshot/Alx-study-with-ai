@@ -1,9 +1,14 @@
 'use client';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/material';
 import Link from 'next/link';
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useTheme } from './ThemeProvider';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 export default function Header() {
+  const { darkMode, toggleDarkMode } = useTheme();
+
   return (
     <AppBar position="static" color="primary" elevation={0}>
       <Toolbar sx={{ flexWrap: 'wrap' }}>
@@ -20,6 +25,9 @@ export default function Header() {
             <Button sx={{ my: 1, mx: 1.5, color: 'white' }}>Progress</Button>
           </Link>
         </nav>
+        <IconButton onClick={toggleDarkMode} color="inherit" sx={{ mr: 2 }}>
+          {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+        </IconButton>
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
