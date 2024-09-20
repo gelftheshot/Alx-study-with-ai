@@ -36,7 +36,8 @@ const cardFaceStyle = {
   overflow: "hidden",
 };
 
-const Flashcard = ({ question, answer, detail, isFlipped, setIsFlipped, strength }) => {
+const Flashcard = ({ question, answer, detail, strength }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = () => {
