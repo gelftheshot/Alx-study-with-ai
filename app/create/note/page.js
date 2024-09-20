@@ -1,13 +1,18 @@
 'use client';
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container, Grid, Paper, Slider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { Box, Button, Typography, Container, Stepper, Step, StepLabel, Paper } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../../utils/firebase';
 import Note from '../../../components/Note';
 import TopicOrFileInput from '../../../components/TopicOrFileInput';
+import NoteSettings from '../../../components/NoteSettings';
+import NotePreview from '../../../components/NotePreview';
+
+const steps = ['Choose Input', 'Configure Settings', 'Generate Note', 'Review and Save'];
 
 const CreateNote = () => {
+  const [activeStep, setActiveStep] = useState(0);
   const [topic, setTopic] = useState('');
   const [file, setFile] = useState(null);
   const [wordCount, setWordCount] = useState(200);
@@ -16,7 +21,6 @@ const CreateNote = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saveLoading, setSaveLoading] = useState(false);
-  const [inputType, setInputType] = useState('topic');
   const { user } = useUser();
 
   const handleTopicChange = (newTopic) => {
@@ -41,6 +45,10 @@ const CreateNote = () => {
         createdAt: new Date()
       });
       alert('Note saved successfully!');
+      setActiveStep(0);
+      setTopic('');
+      setFile(null);
+      setNote(null);
     } catch (error) {
       console.error('Error saving note:', error);
       alert('Failed to save note. Please try again.');
@@ -54,7 +62,7 @@ const CreateNote = () => {
     setError(null);
     try {
       let response;
-      if (inputType === 'file' && file) {
+      if (file) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('wordCount', wordCount.toString());
@@ -95,6 +103,7 @@ const CreateNote = () => {
 
       const data = await response.json();
       setNote(data.note);
+      setActiveStep(3);
     } catch (err) {
       console.error('Error generating note:', err);
       setError(`Failed to generate note: ${err.message}`);
@@ -103,85 +112,82 @@ const CreateNote = () => {
     }
   };
 
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return <TopicOrFileInput onTopicChange={handleTopicChange} onFileUpload={handleFileUpload} />;
+      case 1:
+        return <NoteSettings wordCount={wordCount} setWordCount={setWordCount} complexity={complexity} setComplexity={setComplexity} />;
+      case 2:
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+            <Typography variant="h6">
+              {isLoading ? 'Generating your note...' : 'Click "Generate" to create your note'}
+            </Typography>
+          </Box>
+        );
+      case 3:
+        return note ? <NotePreview note={note} /> : null;
+      default:
+        return 'Unknown step';
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Create Note
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Create Your Custom Note
         </Typography>
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-          <Grid container spacing={2} alignItems="flex-start">
-            <Grid item xs={12}>
-              <RadioGroup
-                row
-                value={inputType}
-                onChange={(e) => setInputType(e.target.value)}
-              >
-                <FormControlLabel value="topic" control={<Radio />} label="Enter Topic" />
-                <FormControlLabel value="file" control={<Radio />} label="Upload PDF" />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12} md={9}>
-              <TopicOrFileInput 
-                onTopicChange={handleTopicChange} 
-                onFileUpload={handleFileUpload}
-                inputType={inputType}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <TextField
-                  fullWidth
-                  label="Word Count"
-                  type="number"
-                  value={wordCount}
-                  onChange={(e) => setWordCount(Math.min(1000, Math.max(50, parseInt(e.target.value) || 50)))}
-                  inputProps={{ min: 50, max: 1000 }}
-                  margin="normal"
-                  required
-                />
-                <Typography gutterBottom>Complexity: {complexity}%</Typography>
-                <Slider
-                  value={complexity}
-                  onChange={(e, newValue) => setComplexity(newValue)}
-                  aria-labelledby="complexity-slider"
-                  valueLabelDisplay="auto"
-                  step={1}
-                  marks
-                  min={1}
-                  max={100}
-                />
+        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          {getStepContent(activeStep)}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button
+              color="inherit"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              sx={{ mr: 1 }}
+            >
+              Back
+            </Button>
+            <Box>
+              {activeStep === steps.length - 1 ? (
+                <Button onClick={saveNote} variant="contained" color="primary" disabled={saveLoading}>
+                  {saveLoading ? 'Saving...' : 'Save Note'}
+                </Button>
+              ) : (
                 <Button
-                  type="submit"
                   variant="contained"
                   color="primary"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  disabled={isLoading || (inputType === 'topic' ? !topic : !file)}
-                  onClick={handleGenerateNote}
+                  onClick={activeStep === 2 ? handleGenerateNote : handleNext}
+                  disabled={isLoading || (activeStep === 0 && !topic && !file)}
                 >
-                  {isLoading ? 'Generating...' : 'Generate Note'}
+                  {activeStep === 2 ? (isLoading ? 'Generating...' : 'Generate') : 'Next'}
                 </Button>
-              </Box>
-            </Grid>
-          </Grid>
+              )}
+            </Box>
+          </Box>
         </Paper>
       </Box>
-
-      {note && (
-        <>
-          <Note title={topic} content={note.content} />
-          <Box sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={saveNote}
-              disabled={saveLoading}
-            >
-              {saveLoading ? 'Saving...' : 'Save Note'}
-            </Button>
-          </Box>
-        </>
+      {error && (
+        <Typography color="error" sx={{ mt: 2, mb: 2 }}>
+          {error}
+        </Typography>
       )}
     </Container>
   );

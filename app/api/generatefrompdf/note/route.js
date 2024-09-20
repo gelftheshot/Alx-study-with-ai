@@ -19,17 +19,15 @@ export async function POST(req) {
   Instructions:
   1. Use ONLY the information from the text content provided. Do not use any external knowledge.
   2. The note should summarize key points and concepts from the text.
-  3. Organize the note in a clear, logical structure.
+  3. Organize the note in a clear, logical structure with the following sections:
+     - Introduction (brief overview)
+     - Main Points (use bullet points or numbered list)
+     - Key Concepts (explain important terms or ideas)
+     - Summary (concise wrap-up)
   4. Adjust the language complexity to match the specified level.
-  5. Your response must be a valid JSON object that can be parsed directly.
-  6. Do not include ANY text outside of the JSON structure.
+  5. Return the note as plain text, using Markdown formatting for structure.
 
-  Your response MUST be EXACTLY in this JSON format:
-  {
-    "content": "The generated note content goes here..."
-  }
-
-  Generate the note with approximately ${wordCount} words. Do not add any explanations, comments, or additional text outside the JSON structure.`;
+  Generate the note with approximately ${wordCount} words. Use Markdown formatting for better structure.`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -54,20 +52,11 @@ export async function POST(req) {
     }
 
     const result = await response.json();
-    let note;
+    const content = result.choices[0].message.content;
+    console.log('Raw API response:', content);
 
-    try {
-      const content = result.choices[0].message.content;
-      console.log('Raw API response:', content);
-      note = JSON.parse(content);
-    } catch (parseError) {
-      console.error('Error parsing JSON:', parseError);
-      throw new Error('Failed to parse API response');
-    }
-
-    if (!note || !note.content) {
-      throw new Error('Invalid note format: expected an object with a content property');
-    }
+    // Create a note object with the content
+    const note = { content: content.trim() };
 
     return NextResponse.json({ note });
   } catch (error) {

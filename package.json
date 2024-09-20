@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "patch-package" 
-
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.36",
@@ -33,6 +32,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
+    "react-markdown": "^9.0.1",
     "recharts": "^2.12.7",
     "stripe": "^16.7.0"
   },
