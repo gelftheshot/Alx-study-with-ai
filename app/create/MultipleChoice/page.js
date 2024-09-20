@@ -54,7 +54,8 @@ export default function MultipleChoicePage() {
         });
 
         if (!generateResponse.ok) {
-          throw new Error('Failed to generate questions');
+          const errorData = await generateResponse.json();
+          throw new Error(errorData.error || 'Failed to generate questions');
         }
 
         questionData = await generateResponse.json();
@@ -75,10 +76,14 @@ export default function MultipleChoicePage() {
         questionData = await response.json();
       }
 
+      if (!questionData.questions || !Array.isArray(questionData.questions)) {
+        throw new Error('Invalid question data received');
+      }
+
       setQuestions(questionData.questions);
     } catch (err) {
       console.error('Error generating questions:', err);
-      setError('Failed to generate questions. Please try again later or with a different input.');
+      setError(err.message || 'Failed to generate questions. Please try again later or with a different input.');
     } finally {
       setIsLoading(false);
     }
