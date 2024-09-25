@@ -9,13 +9,14 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SchoolIcon from '@mui/icons-material/School';
+import ChatIcon from '@mui/icons-material/Chat';
 
 const options = [
   { title: 'Flashcards', subtitle: 'Create and study flashcards', icon: StyleIcon, href: '/create/flashcard', color: '#FFC107', action: 'Create Flashcards' },
   { title: 'Multiple Choice', subtitle: 'Generate quiz questions', icon: QuizIcon, href: '/create/MultipleChoice', color: '#4CAF50', action: 'Create Quiz' },
   { title: 'Short Answer', subtitle: 'Practice short answers', icon: ShortTextIcon, href: '/create/shortAnswer', color: '#2196F3', action: 'Generate Questions' },
   { title: 'Study Notes', subtitle: 'Generate study notes', icon: MenuBookIcon, href: '/create/note', color: '#9C27B0', action: 'Create Notes' },
-  { title: 'Ask AI', subtitle: 'Get answers to your questions', icon: HelpOutlineIcon, href: '/ask-question', color: '#FF5722', action: 'Ask a Question' },
+  { title: 'Ask AI', subtitle: 'Get answers to your questions', icon: ChatIcon, href: '/ask-question', color: '#FF5722', action: 'Ask a Question' },
   { title: 'Progress', subtitle: 'Track your learning', icon: TrendingUpIcon, href: '/progress', color: '#3F51B5', action: 'View Progress' },
   { title: 'Study Plan', subtitle: 'Create a study plan', icon: SchoolIcon, href: '/study-plan', color: '#607D8B', action: 'Create Plan' },
 ];

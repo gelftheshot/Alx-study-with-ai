@@ -1,17 +1,17 @@
 'use client';
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&family=Playfair+Display&family=Montserrat&family=Lora&display=swap" rel="stylesheet"></link>
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
+const lightTheme = createTheme({
   palette: {
+    mode: 'light',
     primary: {
-      main: '#3f51b5', // A deep blue
+      main: '#3f51b5',
       light: '#757de8',
       dark: '#002984',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#f50057', // A vibrant pink
+      main: '#f50057',
       light: '#ff5983',
       dark: '#bb002f',
       contrastText: '#ffffff',
@@ -30,4 +30,33 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#757de8',
+      light: '#a4aaff',
+      dark: '#3f51b5',
+      contrastText: '#000000',
+    },
+    secondary: {
+      main: '#ff5983',
+      light: '#ff8cb3',
+      dark: '#c41c56',
+      contrastText: '#000000',
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
+    },
+    text: {
+      primary: '#ffffff',
+      secondary: '#b0b0b0',
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
+  },
+});
+
+export { lightTheme, darkTheme };
